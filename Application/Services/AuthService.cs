@@ -31,9 +31,12 @@ public class AuthService(IDoctorsRepository doctorsRepository) : IAuthService
         throw new NotImplementedException();
     }
 
-    public Task RegisterDoctorAsync(CancellationToken cancellationToken = default)
+    public async Task RegisterDoctorAsync(CancellationToken cancellationToken = default)
     {
-       var o = new Doctor();
+        var o = new Doctor();
+
+        await doctorsRepository.AddAsync(o);
+    }
     public Task RegisterPatientAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();

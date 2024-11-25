@@ -8,5 +8,6 @@ namespace Application.Abstrsctions.Persistance.Repositories
 {
     public interface IDoctorsRepository
     {
+
     }
 }

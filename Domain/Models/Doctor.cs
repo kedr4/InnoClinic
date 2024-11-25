@@ -4,9 +4,9 @@ namespace Domain.Models;
 
 public class Doctor : IdentityUser<Guid>
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }    
-    public string MiddleName { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string MiddleName { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }     
     //
     public Guid AccountId { get; set; } 
@@ -14,6 +14,4 @@ public class Doctor : IdentityUser<Guid>
     public Guid OfficeId { get; set; }
     //
     public int CareerStartYear { get; set; }
-    public string Status { get; set; }
-
 }
