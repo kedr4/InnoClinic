@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Application.Abstrsctions.Services;
 
-namespace Application.Abstrsctions.Services
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        public Task RegisterPatientAsync(CancellationToken cancellationToken = default);
-        public Task RegisterDoctorAsync(CancellationToken cancellationToken = default);
-        public Task RegisterReceptionstAsync(CancellationToken cancellationToken = default);
+    Task RegisterPatientAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task RegisterDoctorAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task RegisterReceptionistAsync(string email, string password, CancellationToken cancellationToken = default);
 
-        public Task LoginAsync(CancellationToken cancellationToken = default);
-        public Task LogoutAsync(CancellationToken cancellationToken = default);
-        public Task DeleteProfileAsync(CancellationToken cancellationToken = default);
-        public Task RefreshAccessTokenAsync(CancellationToken cancellationToken = default);
-
-    }
+    Task LoginAsync(string email, string password, CancellationToken cancellationToken = default);
+    Task LogoutAsync(CancellationToken cancellationToken = default);
+    Task DeleteProfileAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<string> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
 }

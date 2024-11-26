@@ -1,9 +1,8 @@
 ﻿using Application.Abstrsctions.Persistance.Repositories;
-using Application.Abstrsctions.Services;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.Services;
+namespace Application.Abstrsctions.Services;
 
 public class AuthService : IAuthService
 {
@@ -63,6 +62,7 @@ public class AuthService : IAuthService
 
     public async Task<string> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
+        // Добавьте логику обновления токена
         throw new NotImplementedException();
     }
 }

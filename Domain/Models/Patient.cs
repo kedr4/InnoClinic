@@ -9,6 +9,5 @@ public class Patient : IdentityUser<Guid>
     public string MiddleName { get; set; } = string.Empty;
     public bool isLinkedToAccount { get; set; }
     public DateOnly DateOfBirth { get; set; }
-    //
     public Guid AccountId { get; set; }
 }
