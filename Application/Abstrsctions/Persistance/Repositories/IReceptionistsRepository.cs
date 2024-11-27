@@ -4,10 +4,10 @@ namespace Application.Abstrsctions.Persistance.Repositories
 {
     public interface IReceptionistsRepository
     {
-        Task<Receptionist?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<IEnumerable<Receptionist>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task AddAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
-        Task UpdateAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
-        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        public Task<Receptionist> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        public Task<List<Receptionist>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        public Task AddAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
+        public Task UpdateAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
+        public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

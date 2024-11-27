@@ -4,13 +4,10 @@ namespace Application.Abstrsctions.Persistance.Repositories
 {
     public interface IDoctorsRepository
     {
-        Task AddAsync(Doctor doctor, CancellationToken cancellationToken = default);
-        Task<Doctor?> GetByIdAsync(Guid doctorId, CancellationToken cancellationToken = default);
-        Task<IEnumerable<Doctor>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task UpdateAsync(Doctor doctor, CancellationToken cancellationToken = default);
-        Task DeleteAsync(Guid doctorId, CancellationToken cancellationToken = default);
-
-
-
+        public Task<Doctor> GetByIdAsync(Guid doctorId, CancellationToken cancellationToken = default);
+        public Task<List<Doctor>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        public Task AddAsync(Doctor doctor, CancellationToken cancellationToken = default);
+        public Task UpdateAsync(Doctor doctor, CancellationToken cancellationToken = default);
+        public Task DeleteAsync(Guid doctorId, CancellationToken cancellationToken = default);
     }
 }

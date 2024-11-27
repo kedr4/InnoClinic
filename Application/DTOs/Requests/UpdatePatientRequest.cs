@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Application.DTOs.Requests;
 
-namespace Application.DTOs.Requests;
-
-public class UpdatePatientRequest
+public record UpdatePatientRequest
 {
-    public string FirstName { get; init; }
-    public string LastName { get; init; }
-    public string MiddleName { get; init; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string MiddleName { get; init; } = string.Empty;
     public bool IsLinkedToAccount { get; init; }
-    public DateOnly DateOfBirth { get; init; }
+    public DateTimeOffset DateOfBirth { get; init; }
 
-    public UpdatePatientRequest(string firstName, string lastName, string middleName, bool isLinkedToAccount, DateOnly dateOfBirth)
+    public UpdatePatientRequest(string firstName, string lastName, string middleName, bool isLinkedToAccount, DateTimeOffset dateOfBirth)
     {
         FirstName = firstName;
         LastName = lastName;

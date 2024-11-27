@@ -2,12 +2,14 @@
 
 public interface IAuthService
 {
-    Task RegisterPatientAsync(string email, string password, CancellationToken cancellationToken = default);
-    Task RegisterDoctorAsync(string email, string password, CancellationToken cancellationToken = default);
-    Task RegisterReceptionistAsync(string email, string password, CancellationToken cancellationToken = default);
-
-    Task LoginAsync(string email, string password, CancellationToken cancellationToken = default);
-    Task LogoutAsync(CancellationToken cancellationToken = default);
-    Task DeleteProfileAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<string> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+    public Task RegisterPatientAsync(string email, string password, string firstName, string lastName, string middleName,
+       DateTimeOffset dateOfBirth, bool isLinkedToAccount, Guid accountId);
+    public Task RegisterDoctorAsync(string email, string password, string firstName, string lastName, string middleName,
+       DateTimeOffset dateOfBirth, Guid accountId, Guid specializationId, Guid officeId, int careerStartYear);
+    public Task RegisterReceptionistAsync(string email, string password, string firstName, string lastName, string middleName,
+         DateTimeOffset dateOfBirth, Guid accountId, Guid officeId);
+    public Task LoginAsync(string email, string password);
+    public Task LogoutAsync();
+    public Task DeleteProfileAsync(Guid userId);
+    public Task<string> RefreshAccessTokenAsync(string refreshToken);
 }

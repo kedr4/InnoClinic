@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Application.DTOs.Requests;
 
-namespace Application.DTOs.Requests;
-
-public class ChangePasswordRequest
+public record ChangePasswordRequest
 {
-    public string OldPassword { get; init; }
-    public string NewPassword { get; init; }
+    public string OldPassword { get; init; } = string.Empty;
+    public string NewPassword { get; init; } = string.Empty;
 
     public ChangePasswordRequest(string oldPassword, string newPassword)
     {
