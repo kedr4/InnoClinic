@@ -1,8 +1,8 @@
 ﻿namespace Application.Exceptions;
-public class InvalidLoginException : Exception
+public class InvalidLoginException : AppException
 {
     public InvalidLoginException()
-        : base("Invalid login attempt.")
+        : base("Invalid login attempt.", 401)
     {
     }
 }
