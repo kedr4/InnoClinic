@@ -40,12 +40,8 @@ public class AuthService : IAuthService
         };
 
         var result = await _patientManager.CreateAsync(user, password);
+        ErrorCaster.CheckForUserRegistrationException(result);
 
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new UserRegistrationException(errors);
-        }
     }
 
 
@@ -67,12 +63,7 @@ public class AuthService : IAuthService
         };
 
         var result = await _doctorManager.CreateAsync(user, password);
-
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new UserRegistrationException(errors);
-        }
+        ErrorCaster.CheckForUserRegistrationException(result);
     }
 
 
@@ -92,12 +83,8 @@ public class AuthService : IAuthService
         };
 
         var result = await _receptionistManager.CreateAsync(user, password);
+        ErrorCaster.CheckForUserRegistrationException(result);
 
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new UserRegistrationException(errors);
-        }
 
     }
 
@@ -111,11 +98,7 @@ public class AuthService : IAuthService
 
         var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
         var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-
-        if (result != PasswordVerificationResult.Success)
-        {
-            throw new InvalidLoginException();
-        }
+        ErrorCaster.CheckForInvalidLoginException(result);
     }
 
     public async Task LoginDoctorAsync(string email, string password)
@@ -128,11 +111,7 @@ public class AuthService : IAuthService
 
         var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
         var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-
-        if (result != PasswordVerificationResult.Success)
-        {
-            throw new InvalidLoginException();
-        }
+        ErrorCaster.CheckForInvalidLoginException(result);
     }
 
     public async Task LoginReceptionistAsync(string email, string password)
@@ -140,20 +119,21 @@ public class AuthService : IAuthService
         var user = await _receptionistManager.FindByIdAsync(email);
         if (user == null)
         {
-            throw new InvalidLoginException();
+            throw new UserNotFoundException(email);
         }
-
         var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
         var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        ErrorCaster.CheckForInvalidLoginException(result);
 
-        if (result != PasswordVerificationResult.Success)
-        {
-            throw new InvalidLoginException();
-        }
     }
-
     public async Task LogoutAsync(string refreshToken)
     {
+        var result = await _refreshTokenGenerator.ValidateRefreshTokenAsync(refreshToken);
+
+        if (!result)
+        {
+            throw new InvalidRefreshTokenException(refreshToken);
+        }
 
         await _refreshTokenGenerator.RevokeRefreshTokenAsync(refreshToken);
     }
@@ -162,52 +142,35 @@ public class AuthService : IAuthService
     public async Task DeleteDoctorProfileAsync(Guid userId)
     {
         var user = await _doctorManager.FindByIdAsync(userId.ToString());
-
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-
         var result = await _doctorManager.DeleteAsync(user);
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new Exception(errors);
-        }
+        ErrorCaster.CheckForUserNotFoundException(result, userId);
+
     }
+
     public async Task DeletePatientProfileAsync(Guid userId)
     {
         var user = await _patientManager.FindByIdAsync(userId.ToString());
-
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-
         var result = await _patientManager.DeleteAsync(user);
-
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new Exception(errors);
-        }
+        ErrorCaster.CheckForUserNotFoundException(result, userId);
     }
+
     public async Task DeleteReceptionistProfileAsync(Guid userId)
     {
         var user = await _receptionistManager.FindByIdAsync(userId.ToString());
-
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-
         var result = await _receptionistManager.DeleteAsync(user);
-
-        if (!result.Succeeded)
-        {
-            var errors = ErrorCaster.GetErrorMessages(result);
-            throw new Exception(errors);
-        }
+        ErrorCaster.CheckForUserNotFoundException(result, userId);
     }
 
     public async Task<string> RefreshAccessTokenAsync(string refreshToken)

@@ -5,5 +5,9 @@ public class UserNotFoundException : AppException
         : base($"User with id {userId} not found.", 404)
     { }
 
+    public UserNotFoundException(string email)
+       : base($"User with email {email} not found.", 404)
+    { }
+
 }
 
