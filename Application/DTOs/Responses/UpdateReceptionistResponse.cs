@@ -1,9 +1,7 @@
 ﻿namespace Application.DTOs.Responses;
 
-public record UpdateReceptionistResponse
-{
-    public bool Success { get; set; }
-    public string Message { get; set; } = string.Empty;
-    public Guid UserId { get; set; }
-}
-
+public record UpdateReceptionistResponse(
+    bool Success = false,
+    string Message = "",
+    Guid UserId = default
+    );

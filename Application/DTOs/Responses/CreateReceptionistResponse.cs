@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Responses;
 
-public record UpdateDoctorResponse(
+public record CreateReceptionistResponse(
     bool Success = false,
     string Message = "",
-    Guid UserId = default
-);
+    Guid ReceptionistId = default
+    );

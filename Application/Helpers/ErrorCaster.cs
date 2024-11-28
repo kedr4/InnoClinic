@@ -21,9 +21,9 @@ public static class ErrorCaster
         }
     }
 
-    public static void CheckForInvalidLoginException([DoesNotReturnIf(true)] Microsoft.AspNetCore.Identity.PasswordVerificationResult result)
+    public static void CheckForInvalidLoginException([DoesNotReturnIf(true)] bool result)
     {
-        if (result == 0)
+        if (!result)
         {
             throw new InvalidLoginException();
         }

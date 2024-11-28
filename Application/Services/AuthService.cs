@@ -1,4 +1,7 @@
 ﻿using Application.Abstrsctions.Services;
+using Application.DTOs;
+using Application.DTOs.Requests;
+using Application.DTOs.Responses;
 using Application.Exceptions;
 using Application.Helpers;
 using Domain.Models;
@@ -6,170 +9,205 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services;
 
-public class AuthService : IAuthService
+public class AuthService(UserManager<Doctor> doctorManager,
+UserManager<Patient> patientManager,
+UserManager<Receptionist> receptionistManager,
+IRefreshTokenService refreshTokenGenerator) : IAuthService
 {
-    private readonly UserManager<Doctor> _doctorManager;
-    private readonly UserManager<Patient> _patientManager;
-    private readonly UserManager<Receptionist> _receptionistManager;
-    private readonly IRefreshTokenGenerator _refreshTokenGenerator;
 
-    public AuthService(UserManager<Doctor> doctorManager,
-    UserManager<Patient> patientManager,
-    UserManager<Receptionist> receptionistManager,
-    IRefreshTokenGenerator refreshTokenGenerator)
-    {
-        _doctorManager = doctorManager;
-        _patientManager = patientManager;
-        _receptionistManager = receptionistManager;
-        _refreshTokenGenerator = refreshTokenGenerator;
-    }
-
-    public async Task RegisterPatientAsync(string email, string password, string firstName, string lastName, string middleName,
-        DateTimeOffset dateOfBirth, bool isLinkedToAccount, Guid accountId)
+    public async Task<CreatePatientResponse> RegisterPatientAsync(CreatePatientRequest request)
     {
         var user = new Patient
         {
-            Email = email,
-            UserName = email,
-            FirstName = firstName,
-            LastName = lastName,
-            MiddleName = middleName,
-            DateOfBirth = dateOfBirth,
-            isLinkedToAccount = isLinkedToAccount,
-            AccountId = accountId
+            Email = request.Email,
+            UserName = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            MiddleName = request.MiddleName,
+            DateOfBirth = request.DateOfBirth,
+            isLinkedToAccount = request.IsLinkedToAccount,
+            AccountId = Guid.NewGuid()
         };
 
-        var result = await _patientManager.CreateAsync(user, password);
+        var result = await patientManager.CreateAsync(user, request.Password);
+
         ErrorCaster.CheckForUserRegistrationException(result);
 
+        return new CreatePatientResponse
+        {
+            Success = result.Succeeded,
+            Message = result.Succeeded ? "Registration successful" : "Registration failed",
+            UserId = user.Id
+        };
     }
 
 
-    public async Task RegisterDoctorAsync(string email, string password, string firstName, string lastName, string middleName,
-        DateTimeOffset dateOfBirth, Guid accountId, Guid specializationId, Guid officeId, int careerStartYear)
+
+    public async Task<CreateDoctorResponse> RegisterDoctorAsync(CreateDoctorRequest request)
     {
+
         var user = new Doctor
         {
-            Email = email,
-            UserName = email,
-            FirstName = firstName,
-            LastName = lastName,
-            MiddleName = middleName,
-            DateOfBirth = dateOfBirth,
-            AccountId = accountId,
-            SpecializationId = specializationId,
-            OfficeId = officeId,
-            CareerStartYear = careerStartYear
+            Email = request.Email,
+            UserName = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            MiddleName = request.MiddleName,
+            DateOfBirth = request.DateOfBirth,
+            SpecializationId = request.SpecializationId,
+            OfficeId = request.OfficeId,
+            CareerStartYear = request.CareerStartYear
         };
 
-        var result = await _doctorManager.CreateAsync(user, password);
+        var result = await doctorManager.CreateAsync(user, request.Password);
+
         ErrorCaster.CheckForUserRegistrationException(result);
+
+        return new CreateDoctorResponse
+        {
+            Success = result.Succeeded,
+            Message = result.Succeeded ? "Doctor registered successfully." : "Failed to register doctor.",
+            UserId = user.Id
+        };
     }
 
 
-    public async Task RegisterReceptionistAsync(string email, string password, string firstName, string lastName, string middleName,
-        DateTimeOffset dateOfBirth, Guid accountId, Guid officeId)
+    public async Task<CreateReceptionistResponse> RegisterReceptionistAsync(CreateReceptionistRequest request)
     {
         var user = new Receptionist
         {
-            Email = email,
-            UserName = email,
-            FirstName = firstName,
-            LastName = lastName,
-            MiddleName = middleName,
-            DateOfBirth = dateOfBirth,
-            AccountId = accountId,
-            OfficeId = officeId
+            Email = request.Email,
+            UserName = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            MiddleName = request.MiddleName,
+            DateOfBirth = request.DateOfBirth,
+            AccountId = request.AccountId,
+            OfficeId = request.OfficeId
         };
 
-        var result = await _receptionistManager.CreateAsync(user, password);
+        var result = await receptionistManager.CreateAsync(user, request.Password);
+
         ErrorCaster.CheckForUserRegistrationException(result);
 
-
+        return new CreateReceptionistResponse
+        {
+            Success = result.Succeeded,
+            Message = result.Succeeded ? "Receptionist registered successfully." : "Failed to register receptionist.",
+            ReceptionistId = user.Id
+        };
     }
 
-    public async Task LoginPatientAsync(string email, string password)
+
+    public async Task<LoginResponse> LoginAsync(LoginRequest request, RolesEnum role)
     {
-        var user = await _patientManager.FindByIdAsync(email);
-        if (user == null)
+        Tuple<bool, Guid> loginResult;
+        bool checkLoginResult = false;
+
+        switch (role)
         {
-            throw new InvalidLoginException();
+            case RolesEnum.Doctor:
+                var doctor = await doctorManager.FindByEmailAsync(request.Email);
+
+                if (doctor == null)
+                {
+                    throw new InvalidLoginException();
+                }
+
+                checkLoginResult = await doctorManager.CheckPasswordAsync(doctor, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, doctor.Id);
+                ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
+
+                break;
+
+            case RolesEnum.Patient:
+                var patient = await patientManager.FindByEmailAsync(request.Email);
+
+                if (patient == null)
+                {
+                    throw new InvalidLoginException();
+                }
+
+                checkLoginResult = await patientManager.CheckPasswordAsync(patient, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, patient.Id);
+                ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
+
+                break;
+            case RolesEnum.Receptionist:
+                var receptionist = await receptionistManager.FindByEmailAsync(request.Email);
+
+                if (receptionist == null)
+                {
+                    throw new InvalidLoginException();
+                }
+
+                checkLoginResult = await receptionistManager.CheckPasswordAsync(receptionist, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, receptionist.Id);
+                ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
+
+                break;
+            default:
+                throw new InvalidLoginException();
         }
 
-        var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
-        var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        ErrorCaster.CheckForInvalidLoginException(result);
-    }
-
-    public async Task LoginDoctorAsync(string email, string password)
-    {
-        var user = await _doctorManager.FindByIdAsync(email);
-        if (user == null)
-        {
-            throw new InvalidLoginException();
-        }
-
-        var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
-        var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        ErrorCaster.CheckForInvalidLoginException(result);
-    }
-
-    public async Task LoginReceptionistAsync(string email, string password)
-    {
-        var user = await _receptionistManager.FindByIdAsync(email);
-        if (user == null)
-        {
-            throw new UserNotFoundException(email);
-        }
-        var passwordHasher = new PasswordHasher<IdentityUser<Guid>>();
-        var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        ErrorCaster.CheckForInvalidLoginException(result);
+        //generate jwt
+        // generate refresh token
+        return new LoginResponse { UserId = loginResult.Item2, JwtToken = "testjwt", RefreshToken = "testrefresh" };
 
     }
-    public async Task LogoutAsync(string refreshToken)
+
+
+    public async Task<bool> LogoutAsync(string refreshToken)
     {
-        var result = await _refreshTokenGenerator.ValidateRefreshTokenAsync(refreshToken);
+        var result = await refreshTokenGenerator.ValidateRefreshTokenAsync(refreshToken);
 
         if (!result)
         {
             throw new InvalidRefreshTokenException(refreshToken);
         }
 
-        await _refreshTokenGenerator.RevokeRefreshTokenAsync(refreshToken);
+        await refreshTokenGenerator.RevokeRefreshTokenAsync(refreshToken);
+        return true; //TODO: some more logic
     }
 
 
     public async Task DeleteDoctorProfileAsync(Guid userId)
     {
-        var user = await _doctorManager.FindByIdAsync(userId.ToString());
+        var user = await doctorManager.FindByIdAsync(userId.ToString());
+
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-        var result = await _doctorManager.DeleteAsync(user);
+
+        var result = await doctorManager.DeleteAsync(user);
         ErrorCaster.CheckForUserNotFoundException(result, userId);
 
     }
 
     public async Task DeletePatientProfileAsync(Guid userId)
     {
-        var user = await _patientManager.FindByIdAsync(userId.ToString());
+        var user = await patientManager.FindByIdAsync(userId.ToString());
+
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-        var result = await _patientManager.DeleteAsync(user);
+
+        var result = await patientManager.DeleteAsync(user);
         ErrorCaster.CheckForUserNotFoundException(result, userId);
     }
 
     public async Task DeleteReceptionistProfileAsync(Guid userId)
     {
-        var user = await _receptionistManager.FindByIdAsync(userId.ToString());
+        var user = await receptionistManager.FindByIdAsync(userId.ToString());
+
         if (user == null)
         {
             throw new UserNotFoundException(userId);
         }
-        var result = await _receptionistManager.DeleteAsync(user);
+
+        var result = await receptionistManager.DeleteAsync(user);
         ErrorCaster.CheckForUserNotFoundException(result, userId);
     }
 

@@ -1,14 +1,10 @@
 ﻿using Application.Abstrsctions.Services;
+using Domain.Models;
 
-namespace Infrastructure.Services;
-public class RefreshTokenGenerator : IRefreshTokenGenerator
+namespace Application.Services;
+public class RefreshTokenService : IRefreshTokenService
 {
-    public Task<string> GenerateRefreshTokenAsync(Guid userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<string> RefreshRefreshTokenAsync(string refreshToken)
+    public Task<RefreshToken> GenerateRefreshTokenAsync(Guid userId)
     {
         throw new NotImplementedException();
     }
