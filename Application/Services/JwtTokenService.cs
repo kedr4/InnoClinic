@@ -1,7 +1,6 @@
 ﻿using Application.Abstrsctions.Services;
 using Application.DTOs;
 using Application.Helpers;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,17 +10,14 @@ namespace Application.Services;
 
 public class JwtTokenService : IJwtTokenService
 {
-    private readonly IConfiguration _configuration;
     private readonly JwtSettings _jwtSettings;
 
-    public JwtTokenService(IConfiguration configuration, IOptions<JwtSettings> jwtSettings)
+    public  JwtTokenService(IOptions<JwtSettings> jwtSettings)
     {
-        _configuration = configuration;
         _jwtSettings = jwtSettings.Value;
-
     }
 
-    public async Task<string> GenerateJwtTokenAsync(Guid userId, RolesEnum role)
+    public string GenerateJwtToken(Guid userId, RolesEnum role)
     {
         var secretKey = _jwtSettings.Secret;
         var issuer = _jwtSettings.Issuer;
@@ -51,7 +47,7 @@ public class JwtTokenService : IJwtTokenService
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task<bool> ValidateJwtTokenAsync(string jwtToken)
+    public bool ValidateJwtToken(string jwtToken)
     {
         if (string.IsNullOrEmpty(jwtToken))
         {
@@ -77,14 +73,16 @@ public class JwtTokenService : IJwtTokenService
 
             var tokenHandler = new JwtSecurityTokenHandler();
             tokenHandler.ValidateToken(jwtToken, tokenValidationParameters, out _);
+
             return true;
         }
-        catch (SecurityTokenException ex)
+
+        catch (SecurityTokenException)
         {
             // TODO Add logging
-           
             return false;
         }
+
         catch (Exception ex)
         {
             Console.WriteLine($"Unexpected error during token validation: {ex.Message}");

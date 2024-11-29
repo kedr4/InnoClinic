@@ -7,12 +7,17 @@ using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
+
 namespace Application.Services;
 
-public class AuthService(UserManager<Doctor> doctorManager,
-UserManager<Patient> patientManager,
-UserManager<Receptionist> receptionistManager,
-IRefreshTokenService refreshTokenGenerator) : IAuthService
+public class AuthService
+    (
+    UserManager<Doctor> doctorManager,
+    UserManager<Patient> patientManager,
+    UserManager<Receptionist> receptionistManager,
+    IRefreshTokenService refreshTokenService,
+    IJwtTokenService jwtTokenService
+    ) : IAuthService
 {
 
     public async Task<Guid> RegisterPatientAsync(CreatePatientRequest request)
@@ -107,7 +112,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
             case RolesEnum.Patient:
                 var patient = await patientManager.FindByEmailAsync(request.Email);
 
-                if (patient  is null)
+                if (patient is null)
                 {
                     throw new InvalidLoginException();
                 }
@@ -136,25 +141,24 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
                 throw new InvalidLoginException();
         }
 
-        //generate jwt
-        // generate refresh token
-        return new LoginResponse { UserId = loginResult.Item2, JwtToken = "testjwt", RefreshToken = "testrefresh" };
+        string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, role);
+        string refreshToken = "lalala";
+
+        return new LoginResponse { UserId = loginResult.Item2, JwtToken = jwtToken, RefreshToken = refreshToken };
 
     }
 
 
-    public async Task<bool> LogoutAsync(string refreshToken)
+    public async Task LogoutAsync(Guid userId, string refreshToken)
     {
-        var result = await refreshTokenGenerator.ValidateRefreshTokenAsync(refreshToken);
+        var result = refreshTokenService.ValidateRefreshToken(refreshToken);
 
         if (!result)
         {
             throw new InvalidRefreshTokenException(refreshToken);
         }
-
-        await refreshTokenGenerator.RevokeRefreshTokenAsync(refreshToken);
-
-        return true; //TODO: some more logic
+        //TODO: some more logic
+        refreshTokenService.RevokeRefreshToken(refreshToken);
     }
 
 

@@ -8,5 +8,5 @@ public record UpdateReceptionistRequest(
     DateTimeOffset DateOfBirth = default,
     Guid AccountId = default,
     Guid OfficeId = default
-    
+
     );

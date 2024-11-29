@@ -10,6 +10,6 @@ public interface IAuthService
     public Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request);
     public Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request);
     public Task<LoginResponse> LoginAsync(LoginRequest request, RolesEnum roles);
-    public Task<bool> LogoutAsync(string refreshToken);
+    public Task LogoutAsync(Guid userId, string refreshToken);
     public Task<string> RefreshAccessTokenAsync(string refreshToken);
 }

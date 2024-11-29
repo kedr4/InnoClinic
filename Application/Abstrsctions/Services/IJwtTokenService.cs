@@ -3,6 +3,6 @@
 namespace Application.Abstrsctions.Services;
 public interface IJwtTokenService
 {
-    public Task<string> GenerateJwtTokenAsync(Guid userId, RolesEnum role);
-    public Task<bool> ValidateJwtTokenAsync(string jwtToken);
+    public string GenerateJwtToken(Guid userId, RolesEnum role);
+    public bool ValidateJwtToken(string jwtToken);
 }
