@@ -15,7 +15,7 @@ UserManager<Receptionist> receptionistManager,
 IRefreshTokenService refreshTokenGenerator) : IAuthService
 {
 
-    public async Task<CreatePatientResponse> RegisterPatientAsync(CreatePatientRequest request)
+    public async Task<Guid> RegisterPatientAsync(CreatePatientRequest request)
     {
         var user = new Patient
         {
@@ -33,17 +33,12 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
 
         ErrorCaster.CheckForUserRegistrationException(result);
 
-        return new CreatePatientResponse
-        {
-            Success = result.Succeeded,
-            Message = result.Succeeded ? "Registration successful" : "Registration failed",
-            UserId = user.Id
-        };
+        return user.Id;
     }
 
 
 
-    public async Task<CreateDoctorResponse> RegisterDoctorAsync(CreateDoctorRequest request)
+    public async Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request)
     {
 
         var user = new Doctor
@@ -63,16 +58,11 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
 
         ErrorCaster.CheckForUserRegistrationException(result);
 
-        return new CreateDoctorResponse
-        {
-            Success = result.Succeeded,
-            Message = result.Succeeded ? "Doctor registered successfully." : "Failed to register doctor.",
-            UserId = user.Id
-        };
+        return user.Id;
     }
 
 
-    public async Task<CreateReceptionistResponse> RegisterReceptionistAsync(CreateReceptionistRequest request)
+    public async Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request)
     {
         var user = new Receptionist
         {
@@ -89,12 +79,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
         var result = await receptionistManager.CreateAsync(user, request.Password);
         ErrorCaster.CheckForUserRegistrationException(result);
 
-        return new CreateReceptionistResponse
-        {
-            Success = result.Succeeded,
-            Message = result.Succeeded ? "Receptionist registered successfully." : "Failed to register receptionist.",
-            ReceptionistId = user.Id
-        };
+        return user.Id;
     }
 
 
