@@ -8,5 +8,4 @@ public record UpdateDoctorRequest(
     DateTimeOffset DateOfBirth = default,
     Guid SpecializationId = default,
     Guid OfficeId = default,
-    int CareerStartYear = default
-    );
+    int CareerStartYear = default);

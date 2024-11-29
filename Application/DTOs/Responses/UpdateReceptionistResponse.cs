@@ -1,6 +1,7 @@
 ﻿namespace Application.DTOs.Responses;
 
-public record UpdateReceptionistResponse(
+public record UpdateReceptionistResponse
+    (
     bool Success = false,
     string Message = "",
     Guid UserId = default

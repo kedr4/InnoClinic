@@ -81,7 +81,8 @@ public class JwtTokenService : IJwtTokenService
         }
         catch (SecurityTokenException ex)
         {
-            Console.WriteLine($"Token validation failed: {ex.Message}");
+            // TODO Add logging
+           
             return false;
         }
         catch (Exception ex)

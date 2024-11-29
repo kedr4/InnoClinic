@@ -87,7 +87,6 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
         };
 
         var result = await receptionistManager.CreateAsync(user, request.Password);
-
         ErrorCaster.CheckForUserRegistrationException(result);
 
         return new CreateReceptionistResponse
@@ -123,7 +122,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
             case RolesEnum.Patient:
                 var patient = await patientManager.FindByEmailAsync(request.Email);
 
-                if (patient == null)
+                if (patient  is null)
                 {
                     throw new InvalidLoginException();
                 }
@@ -133,6 +132,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
                 ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
 
                 break;
+
             case RolesEnum.Receptionist:
                 var receptionist = await receptionistManager.FindByEmailAsync(request.Email);
 
@@ -146,6 +146,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
                 ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
 
                 break;
+
             default:
                 throw new InvalidLoginException();
         }
@@ -167,6 +168,7 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
         }
 
         await refreshTokenGenerator.RevokeRefreshTokenAsync(refreshToken);
+
         return true; //TODO: some more logic
     }
 
@@ -182,7 +184,6 @@ IRefreshTokenService refreshTokenGenerator) : IAuthService
 
         var result = await doctorManager.DeleteAsync(user);
         ErrorCaster.CheckForUserNotFoundException(result, userId);
-
     }
 
     public async Task DeletePatientProfileAsync(Guid userId)
