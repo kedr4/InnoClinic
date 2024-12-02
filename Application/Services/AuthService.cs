@@ -142,7 +142,7 @@ public class AuthService
         }
 
         string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, role);
-        string refreshToken = "lalala";
+        string refreshToken = refreshTokenService.GenerateRefreshToken(loginResult.Item2).Token.ToString();
 
         return new LoginResponse { UserId = loginResult.Item2, JwtToken = jwtToken, RefreshToken = refreshToken };
 
@@ -151,54 +151,63 @@ public class AuthService
 
     public async Task LogoutAsync(Guid userId, string refreshToken)
     {
-        var result = refreshTokenService.ValidateRefreshToken(refreshToken);
+        bool result = await refreshTokenService.ValidateRefreshToken(userId, refreshToken);
 
         if (!result)
         {
             throw new InvalidRefreshTokenException(refreshToken);
         }
-        //TODO: some more logic
-        refreshTokenService.RevokeRefreshToken(refreshToken);
+
+        await refreshTokenService.RevokeRefreshToken(userId, refreshToken);
     }
 
-
-    public async Task DeleteDoctorProfileAsync(Guid userId)
+    public async Task DeleteProfileAsync(Guid userId, RolesEnum role)
     {
-        var user = await doctorManager.FindByIdAsync(userId.ToString());
 
-        if (user == null)
+        switch (role)
         {
-            throw new UserNotFoundException(userId);
+            case RolesEnum.Patient:
+
+                var patient = await patientManager.FindByIdAsync(userId.ToString());
+
+                if (patient == null)
+                {
+                    throw new UserNotFoundException(userId);
+                }
+
+                var resultFormPatient = await patientManager.DeleteAsync(patient);
+                ErrorCaster.CheckForUserNotFoundException(resultFormPatient, userId);
+
+                break;
+
+            case RolesEnum.Doctor:
+
+                var doctor = await doctorManager.FindByIdAsync(userId.ToString());
+
+                if (doctor == null)
+                {
+                    throw new UserNotFoundException(userId);
+                }
+
+                var resultFromDoctor = await doctorManager.DeleteAsync(doctor);
+                ErrorCaster.CheckForUserNotFoundException(resultFromDoctor, userId);
+
+                break;
+
+            case RolesEnum.Receptionist:
+
+                var receptionist = await receptionistManager.FindByIdAsync(userId.ToString());
+
+                if (receptionist == null)
+                {
+                    throw new UserNotFoundException(userId);
+                }
+
+                var resultFromReceptionist = await receptionistManager.DeleteAsync(receptionist);
+                ErrorCaster.CheckForUserNotFoundException(resultFromReceptionist, userId);
+
+                break;
         }
-
-        var result = await doctorManager.DeleteAsync(user);
-        ErrorCaster.CheckForUserNotFoundException(result, userId);
-    }
-
-    public async Task DeletePatientProfileAsync(Guid userId)
-    {
-        var user = await patientManager.FindByIdAsync(userId.ToString());
-
-        if (user == null)
-        {
-            throw new UserNotFoundException(userId);
-        }
-
-        var result = await patientManager.DeleteAsync(user);
-        ErrorCaster.CheckForUserNotFoundException(result, userId);
-    }
-
-    public async Task DeleteReceptionistProfileAsync(Guid userId)
-    {
-        var user = await receptionistManager.FindByIdAsync(userId.ToString());
-
-        if (user == null)
-        {
-            throw new UserNotFoundException(userId);
-        }
-
-        var result = await receptionistManager.DeleteAsync(user);
-        ErrorCaster.CheckForUserNotFoundException(result, userId);
     }
 
     public async Task<string> RefreshAccessTokenAsync(string refreshToken)

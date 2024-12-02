@@ -12,5 +12,4 @@ public class Doctor : IdentityUser<Guid>
     public Guid SpecializationId { get; set; }
     public Guid OfficeId { get; set; }
     public int CareerStartYear { get; set; }
-    public string RefreshToken { get; set; } = string.Empty;
 }

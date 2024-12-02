@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Diagnostics.CodeAnalysis;
 namespace Application.Helpers;
@@ -37,5 +38,22 @@ public static class ErrorCaster
             throw new UserRegistrationException(errors);
         }
     }
+
+    public static void CheckForRefreshTokenNotFoundException(RefreshToken refreshToken)
+    {
+        if (refreshToken == null)
+        {
+            throw new RefreshTokenNotFoundException();
+        }
+    }
+
+    public static void CheckForUserIdEmptyException(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            throw new UserIdEmptyException();
+        }
+    }
+
 
 }
