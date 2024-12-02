@@ -1,4 +1,5 @@
-﻿using Application.Abstrsctions.Services;
+﻿using Application.Abstrsctions.Persistance.Repositories;
+using Application.Abstrsctions.Services;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.DTOs.Responses;
@@ -6,6 +7,7 @@ using Application.Exceptions;
 using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace Application.Services;
@@ -16,6 +18,7 @@ public class AuthService
     UserManager<Patient> patientManager,
     UserManager<Receptionist> receptionistManager,
     IRefreshTokenService refreshTokenService,
+    IRefreshTokenRepository refreshTokenRepository,
     IJwtTokenService jwtTokenService
     ) : IAuthService
 {
@@ -66,7 +69,6 @@ public class AuthService
         return user.Id;
     }
 
-
     public async Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request)
     {
         var user = new Receptionist
@@ -88,17 +90,17 @@ public class AuthService
     }
 
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, RolesEnum role)
+    public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
         Tuple<bool, Guid> loginResult;
         bool checkLoginResult = false;
 
-        switch (role)
+        switch (request.Role)
         {
             case RolesEnum.Doctor:
                 var doctor = await doctorManager.FindByEmailAsync(request.Email);
 
-                if (doctor == null)
+                if (doctor is null)
                 {
                     throw new InvalidLoginException();
                 }
@@ -126,7 +128,7 @@ public class AuthService
             case RolesEnum.Receptionist:
                 var receptionist = await receptionistManager.FindByEmailAsync(request.Email);
 
-                if (receptionist == null)
+                if (receptionist is null)
                 {
                     throw new InvalidLoginException();
                 }
@@ -141,7 +143,7 @@ public class AuthService
                 throw new InvalidLoginException();
         }
 
-        string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, role);
+        string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, request.Role);
         string refreshToken = refreshTokenService.GenerateRefreshToken(loginResult.Item2).Token.ToString();
 
         return new LoginResponse { UserId = loginResult.Item2, JwtToken = jwtToken, RefreshToken = refreshToken };
@@ -149,69 +151,108 @@ public class AuthService
     }
 
 
-    public async Task LogoutAsync(Guid userId, string refreshToken)
+    public async Task LogoutAsync(LogoutRequest request)
     {
-        bool result = await refreshTokenService.ValidateRefreshToken(userId, refreshToken);
+        bool result = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
 
         if (!result)
         {
-            throw new InvalidRefreshTokenException(refreshToken);
+            throw new InvalidRefreshTokenException(request.RefreshToken);
         }
 
-        await refreshTokenService.RevokeRefreshToken(userId, refreshToken);
+        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken);
     }
 
-    public async Task DeleteProfileAsync(Guid userId, RolesEnum role)
+    public async Task DeleteProfileAsync(DeleteProfileRequest request)
     {
+        Tuple<bool, Guid> loginResult;
+        bool checkLoginResult = false;
 
-        switch (role)
+        switch (request.Role)
         {
             case RolesEnum.Patient:
 
-                var patient = await patientManager.FindByIdAsync(userId.ToString());
+                var patient = await patientManager.FindByIdAsync(request.UserId.ToString());
 
-                if (patient == null)
+                if (patient is null)
                 {
-                    throw new UserNotFoundException(userId);
+                    throw new UserNotFoundException(request.UserId);
                 }
 
-                var resultFormPatient = await patientManager.DeleteAsync(patient);
-                ErrorCaster.CheckForUserNotFoundException(resultFormPatient, userId);
+                checkLoginResult = await patientManager.CheckPasswordAsync(patient, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, patient.Id);
+                ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
+
+                if (loginResult.Item1)
+                {
+                    var resultFormPatient = await patientManager.DeleteAsync(patient);
+                    ErrorCaster.CheckForUserNotFoundException(resultFormPatient, request.UserId);
+                }
 
                 break;
 
             case RolesEnum.Doctor:
 
-                var doctor = await doctorManager.FindByIdAsync(userId.ToString());
+                var doctor = await doctorManager.FindByIdAsync(request.UserId.ToString());
 
-                if (doctor == null)
+                if (doctor is null)
                 {
-                    throw new UserNotFoundException(userId);
+                    throw new UserNotFoundException(request.UserId);
                 }
 
-                var resultFromDoctor = await doctorManager.DeleteAsync(doctor);
-                ErrorCaster.CheckForUserNotFoundException(resultFromDoctor, userId);
+                checkLoginResult = await doctorManager.CheckPasswordAsync(doctor, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, doctor.Id);
+                ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
+
+                if (loginResult.Item1)
+                {
+                    var resultFromDoctor = await doctorManager.DeleteAsync(doctor);
+                    ErrorCaster.CheckForUserNotFoundException(resultFromDoctor, request.UserId);
+                }
 
                 break;
 
             case RolesEnum.Receptionist:
 
-                var receptionist = await receptionistManager.FindByIdAsync(userId.ToString());
+                var receptionist = await receptionistManager.FindByIdAsync(request.UserId.ToString());
 
-                if (receptionist == null)
+                if (receptionist is null)
                 {
-                    throw new UserNotFoundException(userId);
+                    throw new UserNotFoundException(request.UserId);
                 }
 
-                var resultFromReceptionist = await receptionistManager.DeleteAsync(receptionist);
-                ErrorCaster.CheckForUserNotFoundException(resultFromReceptionist, userId);
+                checkLoginResult = await receptionistManager.CheckPasswordAsync(receptionist, request.Password);
+                loginResult = new Tuple<bool, Guid>(checkLoginResult, receptionist.Id);
+
+                if (loginResult.Item1)
+                {
+                    var resultFromReceptionist = await receptionistManager.DeleteAsync(receptionist);
+                    ErrorCaster.CheckForUserNotFoundException(resultFromReceptionist, request.UserId);
+                }
 
                 break;
         }
     }
 
-    public async Task<string> RefreshAccessTokenAsync(string refreshToken)
+    public async Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request)
     {
-        throw new NotImplementedException();
+        if (request == null || string.IsNullOrEmpty(request.RefreshToken))
+        {
+            throw new ArgumentException("Invalid refresh token request");
+        }
+
+        var isValid = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
+
+        if (!isValid)
+        {
+            throw new SecurityTokenException("Refresh token is invalid or expired");
+        }
+
+        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken);
+        var newRefreshToken = refreshTokenService.GenerateRefreshToken(request.UserId);
+        await refreshTokenRepository.AddAsync(request.UserId, newRefreshToken); 
+        await refreshTokenService.SetRefreshToken(request.UserId, newRefreshToken);
+
+        return newRefreshToken.Token;
     }
 }

@@ -25,9 +25,9 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
         return refreshToken;
     }
 
-    public async void SetRefreshToken(Guid userId, RefreshToken refreshToken)
+    public async Task SetRefreshToken(Guid userId, RefreshToken refreshToken)
     {
-        if (refreshToken == null)
+        if (refreshToken is null)
         {
             throw new ArgumentNullException(nameof(refreshToken));
         }
@@ -66,7 +66,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
 
         var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndTokenAsync(userId, refreshToken);
 
-        if (refreshToken == null || refreshTokenEntity.IsRevoked)
+        if (refreshToken is null || refreshTokenEntity.IsRevoked)
         {
             return false;
         }

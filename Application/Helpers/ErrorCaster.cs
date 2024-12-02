@@ -41,7 +41,7 @@ public static class ErrorCaster
 
     public static void CheckForRefreshTokenNotFoundException(RefreshToken refreshToken)
     {
-        if (refreshToken == null)
+        if (refreshToken is null)
         {
             throw new RefreshTokenNotFoundException();
         }

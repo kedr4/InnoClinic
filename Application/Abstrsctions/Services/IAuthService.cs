@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using Application.DTOs.Requests;
+﻿using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 
 namespace Application.Abstrsctions.Services;
@@ -9,8 +8,8 @@ public interface IAuthService
     public Task<Guid> RegisterPatientAsync(CreatePatientRequest request);
     public Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request);
     public Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request);
-    public Task<LoginResponse> LoginAsync(LoginRequest request, RolesEnum roles);
-    public Task LogoutAsync(Guid userId, string refreshToken);
-    public Task DeleteProfileAsync(Guid userId, RolesEnum roles);
-    public Task<string> RefreshAccessTokenAsync(string refreshToken);
+    public Task<LoginResponse> LoginAsync(LoginRequest request);
+    public Task LogoutAsync(LogoutRequest request);
+    public Task DeleteProfileAsync(DeleteProfileRequest request);
+    public Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request);
 }
