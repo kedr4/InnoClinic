@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Requests;
 
-public record CreatePatientRequest(
-
+public record CreatePatientRequest
+(
     string Email,
     string Password,
     string ConfirmPassword,
@@ -11,5 +11,4 @@ public record CreatePatientRequest(
     bool IsLinkedToAccount = false,
     DateTimeOffset DateOfBirth = default,
     Guid AccountId = default
-
 );

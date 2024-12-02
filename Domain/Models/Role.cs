@@ -6,5 +6,4 @@ namespace Domain.Models
     {
         public string Name { get; set; }
     }
-
 }

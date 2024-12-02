@@ -1,8 +1,7 @@
 ﻿namespace Application.DTOs.Requests;
 
-public record ChangePasswordRequest(
-
+public record ChangePasswordRequest
+(
     string OldPassword,
     string NewPassword
-
-    );
+);

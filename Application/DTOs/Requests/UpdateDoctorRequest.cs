@@ -1,6 +1,7 @@
 ﻿namespace Application.DTOs.Requests;
 
-public record UpdateDoctorRequest(
+public record UpdateDoctorRequest
+(
     string Email,
     string FirstName,
     string LastName,
@@ -8,4 +9,5 @@ public record UpdateDoctorRequest(
     DateTimeOffset DateOfBirth = default,
     Guid SpecializationId = default,
     Guid OfficeId = default,
-    int CareerStartYear = default);
+    int CareerStartYear = default
+);

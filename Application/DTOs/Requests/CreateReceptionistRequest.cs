@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Requests;
 
-public record CreateReceptionistRequest(
-
+public record CreateReceptionistRequest
+(
     string Email,
     string Password,
     string ConfirmPassword,
@@ -11,5 +11,4 @@ public record CreateReceptionistRequest(
     DateTimeOffset DateOfBirth = default,
     Guid AccountId = default,
     Guid OfficeId = default
-
 );

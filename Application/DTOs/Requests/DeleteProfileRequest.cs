@@ -1,10 +1,9 @@
-﻿namespace Application.DTOs.Requests
-{
-    public record DeleteProfileRequest
-    (
+﻿namespace Application.DTOs.Requests;
 
-        Guid UserId,
-        string Password,
-        RolesEnum Role
-    );
-}
+public record DeleteProfileRequest
+(
+
+    Guid UserId,
+    string Password,
+    RolesEnum Role
+);

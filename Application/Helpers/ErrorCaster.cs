@@ -54,6 +54,4 @@ public static class ErrorCaster
             throw new UserIdEmptyException();
         }
     }
-
-
 }

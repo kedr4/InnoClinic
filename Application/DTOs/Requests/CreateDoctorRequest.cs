@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Requests;
 
-public record CreateDoctorRequest(
-
+public record CreateDoctorRequest
+(
     string Email,
     string Password,
     string ConfirmPassword,
@@ -13,5 +13,4 @@ public record CreateDoctorRequest(
     Guid SpecializationId = default,
     Guid OfficeId = default,
     int CareerStartYear = default
-
-    );
+);
