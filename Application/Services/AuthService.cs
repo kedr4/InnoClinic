@@ -250,7 +250,7 @@ public class AuthService
 
         await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken);
         var newRefreshToken = refreshTokenService.GenerateRefreshToken(request.UserId);
-        await refreshTokenRepository.AddAsync(request.UserId, newRefreshToken); 
+        await refreshTokenRepository.AddAsync(request.UserId, newRefreshToken);
         await refreshTokenService.SetRefreshToken(request.UserId, newRefreshToken);
 
         return newRefreshToken.Token;
