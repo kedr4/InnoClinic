@@ -2,7 +2,6 @@
 
 public record DeleteProfileRequest
 (
-
     Guid UserId,
     string Password,
     RolesEnum Role

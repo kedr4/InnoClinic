@@ -8,7 +8,7 @@ public record CreateReceptionistRequest
     string FirstName,
     string LastName,
     string MiddleName,
-    DateTimeOffset DateOfBirth = default,
-    Guid AccountId = default,
-    Guid OfficeId = default
+    DateTimeOffset DateOfBirth,
+    Guid AccountId,
+    Guid OfficeId
 );

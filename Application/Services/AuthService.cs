@@ -44,8 +44,6 @@ public class AuthService
         return user.Id;
     }
 
-
-
     public async Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request)
     {
 
@@ -146,8 +144,7 @@ public class AuthService
         string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, request.Role);
         string refreshToken = refreshTokenService.GenerateRefreshToken(loginResult.Item2).Token.ToString();
 
-        return new LoginResponse { UserId = loginResult.Item2, JwtToken = jwtToken, RefreshToken = refreshToken };
-
+        return new LoginResponse (loginResult.Item2, jwtToken, refreshToken);
     }
 
 

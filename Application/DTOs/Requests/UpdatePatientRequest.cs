@@ -6,6 +6,6 @@ public record UpdatePatientRequest
     string FirstName,
     string LastName,
     string MiddleName,
-    bool IsLinkedToAccount = false,
-    DateTimeOffset DateOfBirth = default
+    bool IsLinkedToAccount,
+    DateTimeOffset DateOfBirth 
 );

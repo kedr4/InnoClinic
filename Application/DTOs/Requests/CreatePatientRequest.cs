@@ -8,7 +8,7 @@ public record CreatePatientRequest
     string FirstName,
     string LastName,
     string MiddleName,
-    bool IsLinkedToAccount = false,
-    DateTimeOffset DateOfBirth = default,
-    Guid AccountId = default
+    bool IsLinkedToAccount ,
+    DateTimeOffset DateOfBirth ,
+    Guid AccountId
 );

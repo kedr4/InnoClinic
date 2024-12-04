@@ -2,7 +2,7 @@
 
 public record UpdatePatientResponse
 (
-    bool Success = false,
-    string Message = "",
-    Guid UserId = default
+    bool Success,
+    string Message,
+    Guid UserId
 );

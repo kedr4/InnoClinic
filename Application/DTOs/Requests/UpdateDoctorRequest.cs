@@ -6,8 +6,8 @@ public record UpdateDoctorRequest
     string FirstName,
     string LastName,
     string MiddleName,
-    DateTimeOffset DateOfBirth = default,
-    Guid SpecializationId = default,
-    Guid OfficeId = default,
-    int CareerStartYear = default
+    DateTimeOffset DateOfBirth,
+    Guid SpecializationId,
+    Guid OfficeId,
+    int CareerStartYear 
 );
