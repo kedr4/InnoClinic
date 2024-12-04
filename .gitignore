@@ -397,7 +397,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /Api/appsettings.json
+.idea/
 
 # Ignore bin and obj explicitly
 bin/
 obj/
+
