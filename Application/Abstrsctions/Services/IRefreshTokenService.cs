@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 
 namespace Application.Abstrsctions.Services;
+
 public interface IRefreshTokenService
 {
     public Task SetRefreshToken(Guid userId, RefreshToken refreshToken);

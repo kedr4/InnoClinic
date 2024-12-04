@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions;
+
 public abstract class AppException : Exception
 {
     public int StatusCode { get; }

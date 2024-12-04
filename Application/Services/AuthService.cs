@@ -9,7 +9,6 @@ using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-
 namespace Application.Services;
 
 public class AuthService
@@ -144,7 +143,7 @@ public class AuthService
         string jwtToken = jwtTokenService.GenerateJwtToken(loginResult.Item2, request.Role);
         string refreshToken = refreshTokenService.GenerateRefreshToken(loginResult.Item2).Token.ToString();
 
-        return new LoginResponse (loginResult.Item2, jwtToken, refreshToken);
+        return new LoginResponse(loginResult.Item2, jwtToken, refreshToken);
     }
 
 

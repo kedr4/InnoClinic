@@ -1,6 +1,5 @@
 ﻿namespace Domain.Models;
 
-
 public class RefreshToken
 {
     public Guid Id { get; set; }

@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions;
+
 public class UserRegistrationException : AppException
 {
     public UserRegistrationException(string errors)

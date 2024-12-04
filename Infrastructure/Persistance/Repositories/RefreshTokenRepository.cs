@@ -3,6 +3,7 @@ using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistance.Repositories;
+
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
     private readonly AuthDbContext _context;

@@ -7,5 +7,5 @@ public record UpdatePatientRequest
     string LastName,
     string MiddleName,
     bool IsLinkedToAccount,
-    DateTimeOffset DateOfBirth 
+    DateTimeOffset DateOfBirth
 );

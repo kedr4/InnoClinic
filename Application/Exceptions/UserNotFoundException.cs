@@ -1,4 +1,5 @@
 ﻿namespace Application.Exceptions;
+
 public class UserNotFoundException : AppException
 {
     public UserNotFoundException(Guid userId)

@@ -3,13 +3,14 @@ using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistance.Repositories;
+
 public class DoctorsRepository(AuthDbContext context) : IDoctorsRepository
 {
 
     public async Task AddAsync(Doctor doctor, CancellationToken cancellationToken = default)
     {
         await context.Doctors.AddAsync(doctor, cancellationToken);
-        await context.SaveChangesAsync();  
+        await context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid doctorId, CancellationToken cancellationToken = default)

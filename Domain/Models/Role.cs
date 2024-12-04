@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Models
+namespace Domain.Models;
+
+public class Role : IdentityUserRole<Guid>
 {
-    public class Role : IdentityUserRole<Guid>
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

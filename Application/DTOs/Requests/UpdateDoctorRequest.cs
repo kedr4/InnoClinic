@@ -9,5 +9,5 @@ public record UpdateDoctorRequest
     DateTimeOffset DateOfBirth,
     Guid SpecializationId,
     Guid OfficeId,
-    int CareerStartYear 
+    int CareerStartYear
 );

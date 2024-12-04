@@ -5,6 +5,7 @@ using Domain.Models;
 using System.Security.Cryptography;
 
 namespace Application.Services;
+
 public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
 {
 

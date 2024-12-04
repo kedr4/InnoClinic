@@ -2,7 +2,7 @@
 
 public record LoginResponse
 (
-    Guid UserId ,
-    string JwtToken ,
-    string RefreshToken 
+    Guid UserId,
+    string JwtToken,
+    string RefreshToken
 );

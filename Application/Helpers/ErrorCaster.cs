@@ -2,7 +2,9 @@
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Diagnostics.CodeAnalysis;
+
 namespace Application.Helpers;
+
 public static class ErrorCaster
 {
     public static string GetErrorMessages(IdentityResult result)

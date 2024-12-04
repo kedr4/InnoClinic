@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 
 namespace Application.Abstrsctions.Persistance.Repositories;
+
 public interface IRefreshTokenRepository
 {
 

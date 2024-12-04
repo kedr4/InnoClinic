@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+
 namespace Infrastructure.Persistance;
 
 public class AuthDbContext : DbContext
