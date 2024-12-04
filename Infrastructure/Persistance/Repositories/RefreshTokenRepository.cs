@@ -4,52 +4,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistance.Repositories;
 
-public class RefreshTokenRepository : IRefreshTokenRepository
+public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenRepository
 {
-    private readonly AuthDbContext _context;
-
-    public RefreshTokenRepository(AuthDbContext context)
+    public async Task<Guid> AddAsync(RefreshToken refreshToken)
     {
-        _context = context;
+        context.RefreshTokens.Add(refreshToken);
+        return refreshToken.Id;
     }
 
-    public async Task<Guid> AddAsync(Guid userId, RefreshToken refreshToken)
-    {
-        var newRefreshToken = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = refreshToken.Token,
-            CreatedAt = refreshToken.CreatedAt,
-            ExpiresAt = refreshToken.ExpiresAt,
-            IsRevoked = refreshToken.IsRevoked
-        };
-
-        _context.RefreshTokens.Add(newRefreshToken);
-        await _context.SaveChangesAsync();
-
-        return newRefreshToken.Id;
-    }
-
-    public async Task UpdateAsync(Guid userId, RefreshToken refreshToken)
-    {
-        var existingRefreshToken = await _context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == refreshToken.Token);
-
-        if (existingRefreshToken != null)
-        {
-            existingRefreshToken.IsRevoked = refreshToken.IsRevoked;
-            existingRefreshToken.ExpiresAt = refreshToken.ExpiresAt;
-
-            await _context.SaveChangesAsync();
-        }
-    }
-
+    
     public async Task<RefreshToken> GetByUserIdAndTokenAsync(Guid userId, string refreshToken)
     {
-        var token = await _context.RefreshTokens
+        var token = await context.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == refreshToken && !rt.IsRevoked);
 
         return token;
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        await context.SaveChangesAsync();  
     }
 }

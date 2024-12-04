@@ -62,10 +62,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> LogoutAsync([FromBody] LogoutRequest request)
+    public async Task<IActionResult> LogoutAsync([FromBody] LogoutRequest request, CancellationToken cancellationToken)
     {
 
-        await _authService.LogoutAsync(request);
+        await _authService.LogoutAsync(request, cancellationToken);
 
         return NoContent();
     }
@@ -79,9 +79,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var newToken = await _authService.RefreshAccessTokenAsync(request);
+        var newToken = await _authService.RefreshAccessTokenAsync(request, cancellationToken);
 
         return Ok(newToken);
     }

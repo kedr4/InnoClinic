@@ -9,7 +9,7 @@ public interface IAuthService
     public Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request);
     public Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request);
     public Task<LoginResponse> LoginAsync(LoginRequest request);
-    public Task LogoutAsync(LogoutRequest request);
+    public Task LogoutAsync(LogoutRequest request, CancellationToken cancellationToken);
     public Task DeleteProfileAsync(DeleteProfileRequest request);
-    public Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request);
+    public Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken);
 }

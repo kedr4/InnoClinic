@@ -26,7 +26,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
         return refreshToken;
     }
 
-    public async Task SetRefreshToken(Guid userId, RefreshToken refreshToken)
+    public async Task SetRefreshToken(Guid userId, RefreshToken refreshToken,CancellationToken  cancellationToken)
     {
         if (refreshToken is null)
         {
@@ -35,11 +35,12 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
 
         ErrorCaster.CheckForUserIdEmptyException(userId);
 
-        await refreshTokenRepository.AddAsync(userId, refreshToken);
+        await refreshTokenRepository.AddAsync(refreshToken);
+        await refreshTokenRepository.SaveChangesAsync(cancellationToken);
         //AddAsync
     }
 
-    public async Task RevokeRefreshToken(Guid userId, string refreshToken)
+    public async Task RevokeRefreshToken(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
@@ -52,11 +53,12 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
         ErrorCaster.CheckForRefreshTokenNotFoundException(refreshTokenEntity);
 
         refreshTokenEntity.IsRevoked = true;
-        await refreshTokenRepository.UpdateAsync(userId, refreshTokenEntity);
+
+        await refreshTokenRepository.SaveChangesAsync(cancellationToken);      
         // тут устанавливать isRevoked = true
     }
 
-    public async Task<bool> ValidateRefreshToken(Guid userId, string refreshToken)
+    public async Task<bool> ValidateRefreshToken(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
@@ -72,7 +74,8 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
             return false;
         }
 
-        await refreshTokenRepository.UpdateAsync(userId, refreshTokenEntity);
+        refreshTokenRepository.SaveChangesAsync(cancellationToken);
+
         return true;
         // тут updateAsync и проверять по isRevoked
     }

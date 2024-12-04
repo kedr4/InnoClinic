@@ -9,18 +9,12 @@ public class ReceptionistsRepository(AuthDbContext context) : IReceptionistsRepo
     public async Task AddAsync(Receptionist receptionist, CancellationToken cancellationToken = default)
     {
         await context.Receptionists.AddAsync(receptionist, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var receptionist = await GetByIdAsync(id, cancellationToken);
-
-        if (receptionist != null)
-        {
-            context.Receptionists.Remove(receptionist);
-            await context.SaveChangesAsync(cancellationToken);
-        }
+        context.Receptionists.Remove(receptionist);
     }
 
     public async Task<List<Receptionist>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -39,6 +33,10 @@ public class ReceptionistsRepository(AuthDbContext context) : IReceptionistsRepo
     public async Task UpdateAsync(Receptionist receptionist, CancellationToken cancellationToken = default)
     {
         context.Receptionists.Update(receptionist);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
         await context.SaveChangesAsync(cancellationToken);
     }
 }

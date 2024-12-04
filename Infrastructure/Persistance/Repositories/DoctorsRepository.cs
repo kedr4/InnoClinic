@@ -10,18 +10,12 @@ public class DoctorsRepository(AuthDbContext context) : IDoctorsRepository
     public async Task AddAsync(Doctor doctor, CancellationToken cancellationToken = default)
     {
         await context.Doctors.AddAsync(doctor, cancellationToken);
-        await context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid doctorId, CancellationToken cancellationToken = default)
     {
         var doctor = await GetByIdAsync(doctorId);
-
-        if (doctor != null)
-        {
-            context.Doctors.Remove(doctor);
-            await context.SaveChangesAsync();
-        }
+        context.Doctors.Remove(doctor);
     }
 
     public async Task<List<Doctor>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -40,6 +34,10 @@ public class DoctorsRepository(AuthDbContext context) : IDoctorsRepository
     public async Task UpdateAsync(Doctor doctor, CancellationToken cancellationToken = default)
     {
         context.Doctors.Update(doctor);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
         await context.SaveChangesAsync(cancellationToken);
     }
 }

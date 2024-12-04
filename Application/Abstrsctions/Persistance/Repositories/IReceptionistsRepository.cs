@@ -9,4 +9,6 @@ public interface IReceptionistsRepository
     public Task AddAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
     public Task UpdateAsync(Receptionist receptionist, CancellationToken cancellationToken = default);
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
 }

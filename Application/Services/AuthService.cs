@@ -147,16 +147,16 @@ public class AuthService
     }
 
 
-    public async Task LogoutAsync(LogoutRequest request)
+    public async Task LogoutAsync(LogoutRequest request, CancellationToken cancellationToken)
     {
-        bool result = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
+        bool result = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken, cancellationToken);
 
         if (!result)
         {
             throw new InvalidRefreshTokenException(request.RefreshToken);
         }
 
-        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken);
+        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken, cancellationToken);
     }
 
     public async Task DeleteProfileAsync(DeleteProfileRequest request)
@@ -230,24 +230,24 @@ public class AuthService
         }
     }
 
-    public async Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request)
+    public async Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         if (request == null || string.IsNullOrEmpty(request.RefreshToken))
         {
             throw new ArgumentException("Invalid refresh token request");
         }
 
-        var isValid = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken);
+        var isValid = await refreshTokenService.ValidateRefreshToken(request.UserId, request.RefreshToken, cancellationToken);
 
         if (!isValid)
         {
             throw new SecurityTokenException("Refresh token is invalid or expired");
         }
 
-        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken);
+        await refreshTokenService.RevokeRefreshToken(request.UserId, request.RefreshToken, cancellationToken);
         var newRefreshToken = refreshTokenService.GenerateRefreshToken(request.UserId);
-        await refreshTokenRepository.AddAsync(request.UserId, newRefreshToken);
-        await refreshTokenService.SetRefreshToken(request.UserId, newRefreshToken);
+        await refreshTokenRepository.AddAsync(newRefreshToken);
+        await refreshTokenService.SetRefreshToken(request.UserId, newRefreshToken, cancellationToken);
 
         return newRefreshToken.Token;
     }

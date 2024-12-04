@@ -22,23 +22,21 @@ public class PatientsRepository(AuthDbContext context) : IPatientsRepository
     public async Task AddAsync(Patient patient, CancellationToken cancellationToken = default)
     {
         await context.Patients.AddAsync(patient, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Patient patient, CancellationToken cancellationToken = default)
     {
         context.Patients.Update(patient);
-        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var patient = await GetByIdAsync(id, cancellationToken);
+        context.Patients.Remove(patient);
+    }
 
-        if (patient != null)
-        {
-            context.Patients.Remove(patient);
-            await context.SaveChangesAsync(cancellationToken);
-        }
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

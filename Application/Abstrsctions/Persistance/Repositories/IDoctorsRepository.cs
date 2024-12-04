@@ -9,4 +9,6 @@ public interface IDoctorsRepository
     public Task AddAsync(Doctor doctor, CancellationToken cancellationToken = default);
     public Task UpdateAsync(Doctor doctor, CancellationToken cancellationToken = default);
     public Task DeleteAsync(Guid doctorId, CancellationToken cancellationToken = default);
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
 }
