@@ -1,4 +1,4 @@
-﻿using Application.Abstrsctions.Persistance.Repositories;
+﻿using Application.Abstractions.Persistance.Repositories;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +12,7 @@ public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenReposi
         return refreshToken.Id;
     }
 
-    
+
     public async Task<RefreshToken> GetByUserIdAndTokenAsync(Guid userId, string refreshToken)
     {
         var token = await context.RefreshTokens
@@ -23,6 +23,6 @@ public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenReposi
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
-        await context.SaveChangesAsync();  
+        await context.SaveChangesAsync();
     }
 }

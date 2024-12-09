@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
 
-namespace Application.Abstrsctions.Services;
+namespace Application.Abstractions.Services;
 
 public interface IJwtTokenService
 {

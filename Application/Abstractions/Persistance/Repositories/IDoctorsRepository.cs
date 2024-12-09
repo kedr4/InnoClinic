@@ -1,6 +1,6 @@
 ﻿using Domain.Models;
 
-namespace Application.Abstrsctions.Persistance.Repositories;
+namespace Application.Abstractions.Persistance.Repositories;
 
 public interface IDoctorsRepository
 {

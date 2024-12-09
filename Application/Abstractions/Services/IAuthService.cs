@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.Requests;
 using Application.DTOs.Responses;
 
-namespace Application.Abstrsctions.Services;
+namespace Application.Abstractions.Services;
 
 public interface IAuthService
 {

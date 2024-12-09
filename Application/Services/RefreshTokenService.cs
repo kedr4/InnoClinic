@@ -1,5 +1,5 @@
-﻿using Application.Abstrsctions.Persistance.Repositories;
-using Application.Abstrsctions.Services;
+﻿using Application.Abstractions.Persistance.Repositories;
+using Application.Abstractions.Services;
 using Application.Helpers;
 using Domain.Models;
 using System.Security.Cryptography;
@@ -26,7 +26,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
         return refreshToken;
     }
 
-    public async Task SetRefreshToken(Guid userId, RefreshToken refreshToken,CancellationToken  cancellationToken)
+    public async Task SetRefreshToken(Guid userId, RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         if (refreshToken is null)
         {
@@ -54,7 +54,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository)
 
         refreshTokenEntity.IsRevoked = true;
 
-        await refreshTokenRepository.SaveChangesAsync(cancellationToken);      
+        await refreshTokenRepository.SaveChangesAsync(cancellationToken);
         // тут устанавливать isRevoked = true
     }
 

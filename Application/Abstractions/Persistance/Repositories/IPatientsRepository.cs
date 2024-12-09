@@ -1,6 +1,6 @@
 ﻿using Domain.Models;
 
-namespace Application.Abstrsctions.Persistance.Repositories;
+namespace Application.Abstractions.Persistance.Repositories;
 
 public interface IPatientsRepository
 {
@@ -9,6 +9,6 @@ public interface IPatientsRepository
     public Task AddAsync(Patient patient, CancellationToken cancellationToken = default);
     public Task UpdateAsync(Patient patient, CancellationToken cancellationToken = default);
     public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    public Task SaveChangesAsync (CancellationToken cancellationToken = default);
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
 }

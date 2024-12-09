@@ -1,31 +1,36 @@
-namespace Api;
+namespace Presentation;
 
 public class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        IConfiguration configuration = builder.Configuration;
 
-        // Add services to the container.
-
+        builder.Services.AddSwagger();
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddEntityFramework(configuration);
+        builder.Services.AddAuthenticationServices(configuration);
+        builder.Services.AddServices();
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddValidation();
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
         }
 
+        app.MapControllers();   
+        app.UseSwagger(app);
+        app.UseMiddlewares();
+
         app.UseHttpsRedirection();
-
+        app.UseAuthentication();  
         app.UseAuthorization();
-
-
-        app.MapControllers();
 
         app.Run();
     }

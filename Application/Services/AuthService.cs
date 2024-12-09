@@ -1,5 +1,5 @@
-﻿using Application.Abstrsctions.Persistance.Repositories;
-using Application.Abstrsctions.Services;
+﻿using Application.Abstractions.Persistance.Repositories;
+using Application.Abstractions.Services;
 using Application.DTOs;
 using Application.DTOs.Requests;
 using Application.DTOs.Responses;

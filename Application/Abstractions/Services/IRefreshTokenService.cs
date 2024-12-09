@@ -1,6 +1,6 @@
 ﻿using Domain.Models;
 
-namespace Application.Abstrsctions.Services;
+namespace Application.Abstractions.Services;
 
 public interface IRefreshTokenService
 {
