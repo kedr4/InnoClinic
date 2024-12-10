@@ -45,6 +45,7 @@ public static class ProgramSwagger
             applicationBuilder.UseSwagger();
             applicationBuilder.UseSwaggerUI();
         }
+
         return applicationBuilder;
     }
 

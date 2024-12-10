@@ -4,12 +4,9 @@ namespace Application.Abstractions.Persistance.Repositories;
 
 public interface IRefreshTokenRepository
 {
-
-    public Task<Guid> AddAsync(RefreshToken refreshToken);
-    public Task<RefreshToken> GetByUserIdAndTokenAsync(Guid userId, string refreshToken);
+    public Task CreateTokenAsync(RefreshToken token, CancellationToken cancellationToken);
+    public Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken);
+    public Task RemoveTokenAsync(RefreshToken token);
     public Task SaveChangesAsync(CancellationToken cancellationToken);
-    // AddAsync
-    // UpdateAsync
-    // GetByUSerIdAndToken(userId, refreshToken) !Revoked
 
 }

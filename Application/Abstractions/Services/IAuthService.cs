@@ -1,15 +1,12 @@
-﻿using Application.DTOs.Requests;
-using Application.DTOs.Responses;
+﻿using Application.Abstractions.DTOs;
+using Domain.Models;
 
 namespace Application.Abstractions.Services;
 
 public interface IAuthService
 {
-    public Task<Guid> RegisterPatientAsync(CreatePatientRequest request);
-    public Task<Guid> RegisterDoctorAsync(CreateDoctorRequest request);
-    public Task<Guid> RegisterReceptionistAsync(CreateReceptionistRequest request);
-    public Task<LoginResponse> LoginAsync(LoginRequest request);
-    public Task LogoutAsync(LogoutRequest request, CancellationToken cancellationToken);
-    public Task DeleteProfileAsync(DeleteProfileRequest request);
-    public Task<string> RefreshAccessTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken);
+    public Task<Guid> RegisterUserAsync(string email, string password, Roles role, CancellationToken cancellationToken);
+    public Task<bool> CheckUserPasswordAsync(string email, string password);
+    public Task<LoginUserResponse> LoginUserAsync(LoginUserRequest loginUserRequest, CancellationToken cancellationToken);
+    public Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken);
 }

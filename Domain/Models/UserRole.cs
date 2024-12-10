@@ -2,6 +2,6 @@
 
 namespace Domain.Models;
 
-public class PatientRole : IdentityRole<Guid>
+public class UserRole : IdentityRole<Guid>
 {
 }

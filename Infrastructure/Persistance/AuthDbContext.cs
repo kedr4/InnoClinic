@@ -1,17 +1,18 @@
 ﻿using Domain.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Infrastructure.Persistance;
 
-public class AuthDbContext : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>
+public class AuthDbContext(DbContextOptions<AuthDbContext> options) : IdentityDbContext<User, UserRole, Guid>(options)
 {
-    public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
-
-    // DbSets for your custom models
     public DbSet<RefreshToken> RefreshTokens { get; set; }
-    public DbSet<Patient> Patients { get; set; }
-    public DbSet<Doctor> Doctors { get; set; }
-    public DbSet<Receptionist> Receptionists { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        base.OnModelCreating(builder);
+    }
 }

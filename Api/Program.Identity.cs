@@ -9,13 +9,10 @@ public static class ProgramIdentity
 {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<AuthDbContext>()
-            .AddDefaultTokenProviders();
-
-        services.AddScoped<UserManager<Doctor>>();
-        services.AddScoped<UserManager<Patient>>();
-        services.AddScoped<UserManager<Receptionist>>();
+        services.AddIdentity<User, UserRole>()
+                   .AddEntityFrameworkStores<AuthDbContext>()
+                   .AddDefaultTokenProviders()
+                   .AddRoles<UserRole>();
 
         return services;
     }

@@ -10,10 +10,11 @@ public class Program
         builder.Services.AddSwagger();
         builder.Services.AddControllers();
         builder.Services.AddEntityFramework(configuration);
+        builder.Services.AddAuthorization();
+
         builder.Services.AddAuthenticationServices(configuration);
         builder.Services.AddServices();
 
-        builder.Services.AddAuthorization();
         builder.Services.AddValidation();
         builder.Services.AddOpenApi();
 
@@ -21,16 +22,19 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            app.MapOpenApi();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
 
-        app.MapControllers();   
-        app.UseSwagger(app);
-        app.UseMiddlewares();
-
+        // Redirect the default route to the Swagger UI
+        app.MapGet("/", () => Results.Redirect("/swagger"));
+       
+        app.UseRouting();  
         app.UseHttpsRedirection();
-        app.UseAuthentication();  
+        app.UseAuthentication();
         app.UseAuthorization();
+        app.MapControllers();  
+        app.UseMiddlewares();
 
         app.Run();
     }

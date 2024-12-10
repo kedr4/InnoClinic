@@ -24,6 +24,14 @@ public static class ErrorCaster
         }
     }
 
+    public static void CheckForUserNotFoundException([DoesNotReturnIf(true)] bool result, string email)
+    {
+        if (!result)
+        {
+            throw new UserNotFoundException(email);
+        }
+    }
+
     public static void CheckForInvalidLoginException([DoesNotReturnIf(true)] bool result)
     {
         if (!result)

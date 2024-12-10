@@ -1,5 +1,6 @@
-﻿using Application.Abstractions.Services;
-using Application.DTOs.Requests;
+﻿using Application.Abstractions.DTOs;
+using Application.Abstractions.Services;
+using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
@@ -9,80 +10,64 @@ namespace Presentation.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IAccessTokenService _accessTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService)
     {
         _authService = authService;
+        _accessTokenService = accessTokenService;
+        _refreshTokenService = refreshTokenService;
     }
 
-    [HttpPost("register/patient")]
-    public async Task<IActionResult> RegisterPatientAsync([FromBody] CreatePatientRequest request)
+    [HttpPost("register-patient")]
+    public async Task<IActionResult> RegisterPatientAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var userId = await _authService.RegisterPatientAsync(request);
-            return CreatedAtAction(nameof(RegisterPatientAsync), new { userId });
-        }
-        catch (Exception ex)
-        {
-            // Log
-            return StatusCode(500, ex.Message);
-        }
+        var userId = await _authService.RegisterUserAsync(request.Email, request.Password, Roles.Patient, cancellationToken);
+
+        return Ok(userId);
     }
 
-    [HttpPost("register/doctor")]
-    public async Task<IActionResult> RegisterDoctorAsync([FromBody] CreateDoctorRequest request)
+    [HttpPost("register-doctor")]
+    public async Task<IActionResult> RegisterDoctorAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var userId = await _authService.RegisterDoctorAsync(request);
-            return CreatedAtAction(nameof(RegisterDoctorAsync), new { userId });
-        }
-        catch (Exception ex)
-        {
-            // Log
-            return StatusCode(500, ex.Message);
-        }
+        var userId = await _authService.RegisterUserAsync(request.Email, request.Password, Roles.Doctor, cancellationToken);
+
+        return Ok(userId);
     }
 
-    [HttpPost("register/receptionist")]
-    public async Task<IActionResult> RegisterReceptionistAsync([FromBody] CreateReceptionistRequest request)
-    {
-        var userId = await _authService.RegisterReceptionistAsync(request);
-
-        return CreatedAtAction(nameof(RegisterReceptionistAsync), new { userId });
-    }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginAsync([FromBody] Application.DTOs.Requests.LoginRequest request)
+    public async Task<IActionResult> LoginAsync([FromBody] LoginUserRequest request, CancellationToken cancellationToken)
     {
-        var response = await _authService.LoginAsync(request);
-
-        return Ok(response);
+        try
+        {
+            var result = await _authService.LoginUserAsync(request, cancellationToken);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "An error occurred during login.", details = ex.Message });
+        }
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> LogoutAsync([FromBody] LogoutRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync([FromBody] LogoutUserRequest request, CancellationToken cancellationToken)
     {
+        var result = await _authService.LogoutUserAsync(request, cancellationToken);
 
-        await _authService.LogoutAsync(request, cancellationToken);
-
-        return NoContent();
-    }
-
-    [HttpPost("delete-profile")]
-    public async Task<IActionResult> DeleteProfileAsync([FromBody] DeleteProfileRequest request)
-    {
-        await _authService.DeleteProfileAsync(request);
-
-        return NoContent();
+        return Ok(result);
     }
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var newToken = await _authService.RefreshAccessTokenAsync(request, cancellationToken);
+        var result = await _refreshTokenService.RefreshTokenAsync(request, cancellationToken);
 
-        return Ok(newToken);
+        return Ok(result);
     }
 }

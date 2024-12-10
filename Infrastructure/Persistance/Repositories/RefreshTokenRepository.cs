@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions.Persistance.Repositories;
 using Domain.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistance.Repositories;
 
@@ -12,17 +11,25 @@ public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenReposi
         return refreshToken.Id;
     }
 
-
-    public async Task<RefreshToken> GetByUserIdAndTokenAsync(Guid userId, string refreshToken)
+    public async Task CreateTokenAsync(RefreshToken token, CancellationToken cancellationToken)
     {
-        var token = await context.RefreshTokens
-            .FirstOrDefaultAsync(rt => rt.UserId == userId && rt.Token == refreshToken && !rt.IsRevoked);
+        await context.RefreshTokens.AddAsync(token, cancellationToken);
+    }
 
-        return token;
+    public async Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveTokenAsync(RefreshToken token)
+    {
+        context.RefreshTokens.Remove(token);
+
+        return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
