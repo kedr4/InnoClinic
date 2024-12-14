@@ -40,19 +40,10 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginUserRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
+
             var result = await _authService.LoginUserAsync(request, cancellationToken);
             return Ok(result);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { error = "An error occurred during login.", details = ex.Message });
-        }
+       
     }
 
     [HttpPost("logout")]

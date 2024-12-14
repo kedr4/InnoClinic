@@ -32,6 +32,14 @@ public static class ErrorCaster
         }
     }
 
+    public static void CheckForUserNotFoundException([DoesNotReturnIf(true)] bool result, Guid id)
+    {
+        if (!result)
+        {
+            throw new UserNotFoundException(id);
+        }
+    }
+
     public static void CheckForInvalidLoginException([DoesNotReturnIf(true)] bool result)
     {
         if (!result)

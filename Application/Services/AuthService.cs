@@ -17,9 +17,9 @@ public class AuthService
 
     public async Task<Guid> RegisterUserAsync(string email, string password, Roles role, CancellationToken cancellationToken)
     {
-        if (await userManager.FindByEmailAsync(email) != null)
+        if (await userManager.FindByEmailAsync(email) is not null)
         {
-            throw new Exception("User already exists");
+            throw new UserAlreadyExistsException();
         }
 
         var user = new User()
@@ -35,36 +35,16 @@ public class AuthService
         return user.Id;
     }
 
-    public async Task<bool> CheckUserPasswordAsync(string email, string password)
-    {
-        var user = await userManager.FindByEmailAsync(email);
-
-        if (user is null)
-        {
-            throw new UserNotFoundException(user.Id);
-        }
-
-        Tuple<bool, Guid> loginResult;
-        bool checkLoginResult = false;
-
-        checkLoginResult = await userManager.CheckPasswordAsync(user, password);
-        loginResult = new Tuple<bool, Guid>(checkLoginResult, user.Id);
-        ErrorCaster.CheckForInvalidLoginException(checkLoginResult);
-
-        return checkLoginResult;
-    }
 
     public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest loginUserRequest, CancellationToken cancellationToken)
     {
-        var isValid = await CheckUserPasswordAsync(loginUserRequest.Email, loginUserRequest.Password);
+        var user = await userManager.FindByEmailAsync(loginUserRequest.Email);
+        var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Email, loginUserRequest.Password);
 
         if (!isValid)
         {
             throw new UnauthorizedAccessException("Password or email is incorrect");
         }
-
-        var user = await userManager.FindByEmailAsync(loginUserRequest.Email);
-        ErrorCaster.CheckForUserNotFoundException(user is null, loginUserRequest.Email);
 
         var userRoles = await accessTokenService.GetRolesAsync(user);
         var accessToken = accessTokenService.GenerateAccessToken(user, userRoles);
@@ -76,7 +56,7 @@ public class AuthService
 
         var refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
 
-        return new LoginUserResponse(user, accessToken, refreshToken.Token);
+        return new LoginUserResponse(user.Id, accessToken, refreshToken.Token);
     }
 
     public async Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)
@@ -85,4 +65,18 @@ public class AuthService
 
         return result;
     }
+
+    private async Task<bool> CheckUserPasswordAsync(User user, string email, string password)
+    {
+        if (user is null)
+        {
+            throw new UserIsNullException();
+        }
+
+        bool isPasswordValid = await userManager.CheckPasswordAsync(user, password);
+        ErrorCaster.CheckForInvalidLoginException(isPasswordValid);
+
+        return isPasswordValid;
+    }
+
 }

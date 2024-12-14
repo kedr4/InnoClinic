@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Persistance.Repositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistance.Repositories;
 
@@ -18,7 +19,10 @@ public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenReposi
 
     public async Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await context.RefreshTokens
+            .Include(token => token.User)
+            .FirstOrDefaultAsync(x =>
+                x.UserId == userId, cancellationToken);
     }
 
     public Task RemoveTokenAsync(RefreshToken token)

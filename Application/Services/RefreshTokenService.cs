@@ -98,11 +98,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         var refreshToken = await refreshTokenRepository.GetUserRefreshTokenAsync(userId, cancellationToken);
 
-        if (refreshToken is null)
-        {
-            return null;
-        }
-
         var currTime = DateTimeOffset.Now;
 
         if (refreshToken.ExpiryTime < currTime)
@@ -118,7 +113,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     public async Task<LoginUserResponse> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(request.userId.ToString());
-        ErrorCaster.CheckForUserNotFoundException(user is null, request.userId.ToString());
 
         var result = await ValidateRefreshTokenAsync(request.userId, request.refreshToken, cancellationToken);
 
@@ -135,7 +129,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
             throw new InvalidOperationException("User role is not suitable");
         }
 
-        return new LoginUserResponse(user, token, request.refreshToken);
+        return new LoginUserResponse(user.Id, token, request.refreshToken);
 
     }
 }
