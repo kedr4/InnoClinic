@@ -403,3 +403,4 @@ FodyWeavers.xsd
 bin/
 obj/
 
+/Application/Helpers/JwtSettings.cs
