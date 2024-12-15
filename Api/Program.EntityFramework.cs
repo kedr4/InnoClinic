@@ -7,12 +7,12 @@ public static class ProgramEntityFramework
 {
     public static IServiceCollection AddEntityFramework(this IServiceCollection services, IConfiguration configuration)
     {
-        //// Настройка SQL Server
-        //services.AddDbContext<DatabaseContext>(options =>
-        //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        // in memory setup
+    //    services.AddDbContext<AuthDbContext>(options =>
+    //options.UseInMemoryDatabase("InMemoryDb"));
 
         services.AddDbContext<AuthDbContext>(options =>
-    options.UseInMemoryDatabase("InMemoryDb"));
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         return services;
     }
