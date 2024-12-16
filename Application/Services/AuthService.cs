@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.DTOs;
+using Application.Abstractions.Persistance.Repositories;
 using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
 using Application.Exceptions;
@@ -13,6 +14,7 @@ public class AuthService
      UserManager<User> userManager,
      IAccessTokenService accessTokenService,
      IRefreshTokenService refreshTokenService,
+     IRefreshTokenRepository refreshTokenRepository,
      IConfirmMessageSenderService confirmMessageSenderService
 ) : IAuthService
 {
@@ -33,7 +35,7 @@ public class AuthService
 
         var result = await userManager.CreateAsync(user, password);
 
-        //await userManager.AddToRoleAsync(user, role.ToString()); ???????????????????????????????????????????????????????????????????????????????????????????????????????
+        //await userManager.AddToRoleAsync(user, role.ToString()); //???????????????????????????????????????????????????????????????????????????????????????????????????????
 
         await confirmMessageSenderService.SendEmailConfirmMessageAsync(user, cancellationToken);
 
@@ -66,18 +68,23 @@ public class AuthService
             throw new UnauthorizedAccessException("User role is not suitable");
         }
 
-        //if (user.RefreshToken.Token is not null)
-        //{
-        //    refreshTokenService.RevokeRefreshTokenAsync(user.Id, cancellationToken);
-        //}
+       
+        var existingToken = await refreshTokenRepository.GetUserRefreshTokenAsync(user.Id, cancellationToken);
 
-        //var refreshTokenRequest = new RefreshTokenRequest(user.RefreshToken.Token, user.Id);
+        if (existingToken is not null)
+        {
+            if (existingToken.ExpiryTime < DateTime.UtcNow)
+            {
+                await refreshTokenService.RevokeRefreshTokenAsync(user.Id, cancellationToken);
+                existingToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
+            }
+        }
+        else
+        {
+            existingToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
+        }
 
-        //var refreshToken = await refreshTokenService.RefreshTokenAsync(refreshTokenRequest, cancellationToken);
-
-        var refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
-
-        return new LoginUserResponse(user.Id, accessToken, refreshToken.Token);
+        return new LoginUserResponse(user.Id, accessToken, existingToken.Token);
     }
 
     public async Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)

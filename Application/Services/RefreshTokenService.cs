@@ -32,7 +32,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         var refreshTokenEntity = await GetUserRefreshTokenAsync(userId, cancellationToken);
 
-
         if (refreshTokenEntity is null || refreshTokenEntity.Token != refreshToken)
         {
             return false;
@@ -94,22 +93,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         return builder.ToString();
     }
 
-    private async Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
-    {
-        var refreshToken = await refreshTokenRepository.GetUserRefreshTokenAsync(userId, cancellationToken);
-
-        var currTime = DateTimeOffset.Now;
-
-        if (refreshToken.ExpiryTime < currTime)
-        {
-            await refreshTokenRepository.RemoveTokenAsync(refreshToken);
-
-            return null;
-        }
-
-        return refreshToken;
-    }
-
     public async Task<LoginUserResponse> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(request.userId.ToString());
@@ -132,4 +115,20 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         return new LoginUserResponse(user.Id, token, request.refreshToken);
 
     }
+    private async Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var refreshToken = await refreshTokenRepository.GetUserRefreshTokenAsync(userId, cancellationToken);
+
+        var currTime = DateTimeOffset.Now;
+
+        if (refreshToken.ExpiryTime < currTime)
+        {
+            await refreshTokenRepository.RemoveTokenAsync(refreshToken);
+
+            return null;
+        }
+
+        return refreshToken;
+    }
+
 }
