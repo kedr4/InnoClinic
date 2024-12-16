@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-
-namespace Application.Abstractions.DTOs;
+﻿namespace Application.Abstractions.DTOs;
 
 public class LoginUserResponse
 {

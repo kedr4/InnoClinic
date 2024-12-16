@@ -1,5 +1,4 @@
 ﻿using Application.Abstractions.DTOs;
-using System.Runtime.CompilerServices;
 
 namespace Application.Abstractions.Services.Email;
 

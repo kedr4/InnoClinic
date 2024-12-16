@@ -32,7 +32,7 @@ public class AuthService
         };
 
         var result = await userManager.CreateAsync(user, password);
-         
+
         //await userManager.AddToRoleAsync(user, role.ToString()); ???????????????????????????????????????????????????????????????????????????????????????????????????????
 
         await confirmMessageSenderService.SendEmailConfirmMessageAsync(user, cancellationToken);
@@ -51,6 +51,11 @@ public class AuthService
         if (!isValid)
         {
             throw new UnauthorizedAccessException("Password or email is incorrect");
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            throw new EmailIsNotConfirmedException();
         }
 
         var userRoles = await accessTokenService.GetRolesAsync(user);
@@ -82,6 +87,24 @@ public class AuthService
         return result;
     }
 
+    public async Task ConfirmMailAsync(ConfirmMailRequest request, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+
+        if (user is null)
+        {
+            throw new UserNotFoundException(request.UserId);
+        }
+
+        var result = await userManager.ConfirmEmailAsync(user, request.Code);
+
+        if (!result.Succeeded)
+        {
+            throw new InvalidConfirmTokenException();
+
+        }
+    }
+
     private async Task<bool> CheckUserPasswordAsync(User user, string email, string password)
     {
         if (user is null)
@@ -94,4 +117,5 @@ public class AuthService
 
         return isPasswordValid;
     }
+
 }

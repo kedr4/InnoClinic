@@ -17,7 +17,7 @@ public class EmailSenderService(IOptions<EmailSenderOptions> options, ISmtpClien
     private MimeMessage CreateEmailMessage(EmailMessage message)
     {
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("Your App Name", _options.Sender));
+        emailMessage.From.Add(new MailboxAddress("InnoClinic", _options.Sender));
         emailMessage.To.Add(new MailboxAddress(message.AddresseeName, message.Addressee));
         emailMessage.Subject = message.Subject;
 

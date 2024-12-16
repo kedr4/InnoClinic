@@ -1,5 +1,4 @@
 ﻿using MailKit.Net.Smtp;
-using MimeKit;
 
 namespace Application.Abstractions.Services.Email;
 

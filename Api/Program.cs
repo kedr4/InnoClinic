@@ -1,8 +1,3 @@
-using Application.Abstractions.Services.Email;
-using Application.Helpers;
-using Microsoft.Extensions.Options;
-using static Org.BouncyCastle.Math.EC.ECCurve;
-
 namespace Presentation;
 
 public class Program
@@ -26,19 +21,19 @@ public class Program
 
 
         if (app.Environment.IsDevelopment())
-        { 
+        {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
         // Redirect the default route to the Swagger UI
         app.MapGet("/", () => Results.Redirect("/swagger"));
-       
-        app.UseRouting();  
+
+        app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();  
+        app.MapControllers();
         app.UseMiddlewares();
 
         app.Run();

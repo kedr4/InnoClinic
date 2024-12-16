@@ -40,10 +40,9 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginUserRequest request, CancellationToken cancellationToken)
     {
+        var result = await _authService.LoginUserAsync(request, cancellationToken);
 
-            var result = await _authService.LoginUserAsync(request, cancellationToken);
-            return Ok(result);
-       
+        return Ok(result);
     }
 
     [HttpPost("logout")]
@@ -61,4 +60,14 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("confirm-mail")]
+    public async Task<IActionResult> ConfirmMailAsync([FromQuery] Guid userId, string token, CancellationToken cancellationToken)
+    {
+        var request = new ConfirmMailRequest(userId, token);
+        await _authService.ConfirmMailAsync(request, cancellationToken);
+
+        return Ok(true);
+    }
+
 }

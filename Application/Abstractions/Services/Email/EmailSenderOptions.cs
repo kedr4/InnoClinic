@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Application.Abstractions.Services.Email;
+﻿namespace Application.Abstractions.Services.Email;
 public class EmailSenderOptions
 {
     public string Sender { get; set; }
