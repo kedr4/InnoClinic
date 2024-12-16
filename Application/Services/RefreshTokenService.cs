@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Persistance.Repositories;
-using Application.Abstractions.Services;
+using Application.Abstractions.Services.Auth;
 using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;

@@ -1,4 +1,7 @@
+using Application.Abstractions.Services.Email;
+using Application.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -6,12 +9,18 @@ namespace Presentation;
 
 public static class ProgramAuthentication
 {
-    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
     {
-        var jwtSettings = configuration.GetSection("JwtSettings");
-        var key = jwtSettings["Secret"];
-        var issuer = jwtSettings["Issuer"];
-        var audience = jwtSettings["Audience"];
+        var options = services.BuildServiceProvider().GetRequiredService<IOptions<JwtSettingsOptions>>();
+        var key = options.Value.Secret;
+        var issuer = options.Value.Issuer;
+        var audience = options.Value.Audience;
+        var expiryMinutes = options.Value.ExpiryMinutes;
+
+        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+        {
+            throw new ArgumentException("JWT settings are missing or incomplete.");
+        }
 
         services.AddIdentityServices();
 
@@ -30,7 +39,7 @@ public static class ProgramAuthentication
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = issuer,
+                ValidIssuer = issuer    ,
                 ValidAudience = audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
             };

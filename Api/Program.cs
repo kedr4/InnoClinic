@@ -1,3 +1,8 @@
+using Application.Abstractions.Services.Email;
+using Application.Helpers;
+using Microsoft.Extensions.Options;
+using static Org.BouncyCastle.Math.EC.ECCurve;
+
 namespace Presentation;
 
 public class Program
@@ -7,21 +12,21 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         IConfiguration configuration = builder.Configuration;
 
+        builder.Services.AddProgramOptions(configuration);
         builder.Services.AddSwagger();
         builder.Services.AddControllers();
         builder.Services.AddEntityFramework(configuration);
         builder.Services.AddAuthorization();
-
-        builder.Services.AddAuthenticationServices(configuration);
+        builder.Services.AddAuthenticationServices();
         builder.Services.AddServices();
-
         builder.Services.AddValidation();
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
 
+
         if (app.Environment.IsDevelopment())
-        {
+        { 
             app.UseSwagger();
             app.UseSwaggerUI();
         }

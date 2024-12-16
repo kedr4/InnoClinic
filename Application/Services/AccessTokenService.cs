@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Services;
+﻿using Application.Abstractions.Services.Auth;
 using Application.Helpers;
 using Domain.Models;
 using Microsoft.Extensions.Options;
@@ -11,10 +11,10 @@ namespace Application.Services;
 
 public class AccessTokenService : IAccessTokenService
 {
-    private readonly JwtSettings _jwtSettings;
+    private readonly JwtSettingsOptions _jwtSettings;
     private readonly Microsoft.AspNetCore.Identity.UserManager<User> _userManager;
 
-    public AccessTokenService(IOptions<JwtSettings> jwtSettings, Microsoft.AspNetCore.Identity.UserManager<User> userManager)
+    public AccessTokenService(IOptions<JwtSettingsOptions> jwtSettings, Microsoft.AspNetCore.Identity.UserManager<User> userManager)
     {
         _jwtSettings = jwtSettings.Value;
         _userManager = userManager;

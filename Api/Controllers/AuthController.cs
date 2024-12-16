@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Services;
+using Application.Abstractions.Services.Auth;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 

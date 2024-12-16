@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.DTOs;
 using Domain.Models;
 
-namespace Application.Abstractions.Services;
+namespace Application.Abstractions.Services.Auth;
 
 public interface IRefreshTokenService
 {

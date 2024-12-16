@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Services;
+using Application.Abstractions.Services.Auth;
+using Application.Abstractions.Services.Email;
 using Application.Exceptions;
 using Application.Helpers;
 using Domain.Models;
@@ -11,7 +12,8 @@ public class AuthService
 (
      UserManager<User> userManager,
      IAccessTokenService accessTokenService,
-     IRefreshTokenService refreshTokenService
+     IRefreshTokenService refreshTokenService,
+     IConfirmMessageSenderService confirmMessageSenderService
 ) : IAuthService
 {
 
@@ -30,6 +32,11 @@ public class AuthService
         };
 
         var result = await userManager.CreateAsync(user, password);
+         
+        //await userManager.AddToRoleAsync(user, role.ToString()); ???????????????????????????????????????????????????????????????????????????????????????????????????????
+
+        await confirmMessageSenderService.SendEmailConfirmMessageAsync(user, cancellationToken);
+
         ErrorCaster.CheckForUserRegistrationException(result);
 
         return user.Id;
@@ -53,6 +60,15 @@ public class AuthService
         {
             throw new UnauthorizedAccessException("User role is not suitable");
         }
+
+        //if (user.RefreshToken.Token is not null)
+        //{
+        //    refreshTokenService.RevokeRefreshTokenAsync(user.Id, cancellationToken);
+        //}
+
+        //var refreshTokenRequest = new RefreshTokenRequest(user.RefreshToken.Token, user.Id);
+
+        //var refreshToken = await refreshTokenService.RefreshTokenAsync(refreshTokenRequest, cancellationToken);
 
         var refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
 
@@ -78,5 +94,4 @@ public class AuthService
 
         return isPasswordValid;
     }
-
 }
