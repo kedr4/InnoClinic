@@ -48,6 +48,12 @@ public class AuthService
     public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest loginUserRequest, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(loginUserRequest.Email);
+
+        if (user == null)
+        {
+            throw new UserNotFoundException(loginUserRequest.Email);
+        }
+        
         var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Email, loginUserRequest.Password);
 
         if (!isValid)

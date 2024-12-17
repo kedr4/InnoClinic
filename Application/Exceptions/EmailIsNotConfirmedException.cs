@@ -2,7 +2,7 @@
 
 public class EmailIsNotConfirmedException : AppException
 {
-    public EmailIsNotConfirmedException() : base("User id is empty.", 401)
+    public EmailIsNotConfirmedException() : base("Email is not confirmed.", 401)
     {
     }
 }
