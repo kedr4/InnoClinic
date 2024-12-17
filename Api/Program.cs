@@ -1,5 +1,5 @@
+using Presentation.Middleware;
 using Serilog;
-using Serilog.Extensions.Hosting;
 
 namespace Presentation;
 
@@ -23,6 +23,7 @@ public class Program
         builder.Host.UseSerilog();
 
         var app = builder.Build();
+        app.UseCustomExceptionHandlingMiddleware();
 
         if (app.Environment.IsDevelopment())
         {
@@ -31,14 +32,14 @@ public class Program
             app.MapGet("/", () => Results.Redirect("/swagger"));
 
         }
-
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseSerilogRequestLogging();
+
+
         app.MapControllers();
-        app.UseMiddlewares();
 
         app.Run();
     }
