@@ -1,9 +1,27 @@
-using Microsoft.OpenApi.Models;
+п»їusing Microsoft.OpenApi.Models;
+using Presentation.Middleware;
+using Serilog;
 
 namespace Presentation;
 
-public static class ProgramSwagger
+public static class PresentationInjection
 {
+    public static IApplicationBuilder UseCustomExceptionHandlingMiddleware(this IApplicationBuilder app)
+    {
+        app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+
+        return app;
+    }
+
+    public static IServiceCollection AddSerilog(this IServiceCollection services, IConfiguration configuration)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
+        return services;
+    }
+
     public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
@@ -14,7 +32,7 @@ public static class ProgramSwagger
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
-                Description = "Введите 'Bearer' [пробел] и ваш токен в поле ниже. \r\n\r\nПример: \"Bearer 12345abcdef\"",
+                Description = "Р’РІРµРґРёС‚Рµ 'Bearer' [РїСЂРѕР±РµР»] Рё РІР°С€ С‚РѕРєРµРЅ РІ РїРѕР»Рµ РЅРёР¶Рµ. \r\n\r\nРџСЂРёРјРµСЂ: \"Bearer 12345abcdef\"",
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey
             });
@@ -48,5 +66,4 @@ public static class ProgramSwagger
 
         return applicationBuilder;
     }
-
 }

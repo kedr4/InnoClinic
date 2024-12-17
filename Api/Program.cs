@@ -1,4 +1,4 @@
-using Presentation.Middleware;
+using Infrastructure;
 using Serilog;
 
 namespace Presentation;
@@ -11,13 +11,13 @@ public class Program
         IConfiguration configuration = builder.Configuration;
 
         builder.Services.AddProgramOptions(configuration);
+        builder.Services.AddValidation();
         builder.Services.AddSwagger();
         builder.Services.AddControllers();
         builder.Services.AddEntityFramework(configuration);
         builder.Services.AddAuthorization();
         builder.Services.AddAuthenticationServices();
         builder.Services.AddServices();
-        builder.Services.AddValidation();
         builder.Services.AddOpenApi();
         builder.Services.AddSerilog(configuration);
         builder.Host.UseSerilog();

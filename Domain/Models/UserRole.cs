@@ -2,6 +2,4 @@
 
 namespace Domain.Models;
 
-public class UserRole : IdentityRole<Guid>
-{
-}
+public class UserRole : IdentityRole<Guid>;

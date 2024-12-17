@@ -53,7 +53,7 @@ public class AuthService
         {
             throw new UserNotFoundException(loginUserRequest.Email);
         }
-        
+
         var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Email, loginUserRequest.Password);
 
         if (!isValid)
@@ -73,7 +73,6 @@ public class AuthService
         {
             throw new UnauthorizedAccessException("User role is not suitable");
         }
-
 
         var existingToken = await refreshTokenRepository.GetUserRefreshTokenAsync(user.Id, cancellationToken);
 
