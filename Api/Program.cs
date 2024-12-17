@@ -1,3 +1,6 @@
+using Serilog;
+using Serilog.Extensions.Hosting;
+
 namespace Presentation;
 
 public class Program
@@ -16,23 +19,24 @@ public class Program
         builder.Services.AddServices();
         builder.Services.AddValidation();
         builder.Services.AddOpenApi();
+        builder.Services.AddSerilog(configuration);
+        builder.Host.UseSerilog();
 
         var app = builder.Build();
-
 
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-        }
+            app.MapGet("/", () => Results.Redirect("/swagger"));
 
-        // Redirect the default route to the Swagger UI
-        app.MapGet("/", () => Results.Redirect("/swagger"));
+        }
 
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseSerilogRequestLogging();
         app.MapControllers();
         app.UseMiddlewares();
 

@@ -68,7 +68,7 @@ public class AuthService
             throw new UnauthorizedAccessException("User role is not suitable");
         }
 
-       
+
         var existingToken = await refreshTokenRepository.GetUserRefreshTokenAsync(user.Id, cancellationToken);
 
         if (existingToken is not null)
