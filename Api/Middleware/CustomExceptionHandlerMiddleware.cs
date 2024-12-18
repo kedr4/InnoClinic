@@ -1,6 +1,5 @@
 ﻿using Application.Exceptions;
 using Newtonsoft.Json;
-using Serilog;
 using System.Net;
 
 namespace Presentation.Middleware;
@@ -13,7 +12,7 @@ public class CustomExceptionHandlerMiddleware
     public CustomExceptionHandlerMiddleware(RequestDelegate next, ILogger<CustomExceptionHandlerMiddleware> logger)
     {
         _next = next;
-        _logger = logger; 
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,24 +23,24 @@ public class CustomExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogCritical(exception, "An unhandled exception occurred."); 
+            _logger.LogCritical(exception, "An unhandled exception occurred.");
             await HandleExceptionAsync(context, exception);
         }
     }
 
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-            context.Response.ContentType = "application/json";
+        context.Response.ContentType = "application/json";
 
         if (exception is AppException appException)
         {
             context.Response.StatusCode = appException.StatusCode;
-            _logger.LogError("Handled AppException: {Message}", appException.Message); 
+            _logger.LogError("Handled AppException: {Message}", appException.Message);
         }
         else
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            _logger.LogError("Unhandled Exception: {Message}", exception.Message); 
+            _logger.LogError("Unhandled Exception: {Message}", exception.Message);
         }
 
         var errorDetails = new

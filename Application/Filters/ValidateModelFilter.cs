@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Serilog;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Application.Filters;
 
@@ -12,7 +10,7 @@ public class ValidateModelFilter : ActionFilterAttribute
 
     public ValidateModelFilter()
     {
-        _logger = Log.ForContext<ValidateModelFilter>(); 
+        _logger = Log.ForContext<ValidateModelFilter>();
     }
 
     public override void OnActionExecuting(ActionExecutingContext context)

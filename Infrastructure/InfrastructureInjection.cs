@@ -2,9 +2,9 @@
 using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
 using Application.Helpers;
+using Application.Services;
 using Application.Services.Auth;
 using Application.Services.Email;
-using Application.Services;
 using Domain.Models;
 using Infrastructure.Persistance;
 using Infrastructure.Persistance.Repositories;

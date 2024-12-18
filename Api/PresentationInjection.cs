@@ -1,6 +1,5 @@
 ﻿using Microsoft.OpenApi.Models;
 using Presentation.Middleware;
-using Serilog;
 
 namespace Presentation;
 
@@ -11,21 +10,6 @@ public static class PresentationInjection
         app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
         return app;
-    }
-
-    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder, IConfiguration configuration)
-    {
-        builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
-
-        return builder;
-    }
-
-    public static WebApplication UseSerilog(this WebApplication builder, IConfiguration configuration)
-    {
-        builder.UseSerilogRequestLogging();
-
-        return builder;
     }
 
     public static IServiceCollection AddSwagger(this IServiceCollection services)
