@@ -13,13 +13,19 @@ public static class PresentationInjection
         return app;
     }
 
-    public static IServiceCollection AddSerilog(this IServiceCollection services, IConfiguration configuration)
+    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder, IConfiguration configuration)
     {
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .CreateLogger();
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
 
-        return services;
+        return builder;
+    }
+
+    public static WebApplication UseSerilog(this WebApplication builder, IConfiguration configuration)
+    {
+        builder.UseSerilogRequestLogging();
+
+        return builder;
     }
 
     public static IServiceCollection AddSwagger(this IServiceCollection services)

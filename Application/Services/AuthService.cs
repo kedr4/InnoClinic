@@ -61,10 +61,10 @@ public class AuthService
             throw new UnauthorizedAccessException("Password or email is incorrect");
         }
 
-        if (!user.EmailConfirmed)
-        {
-            throw new EmailIsNotConfirmedException();
-        }
+        //if (!user.EmailConfirmed)
+        //{
+        //    throw new EmailIsNotConfirmedException();
+        //}
 
         var userRoles = await accessTokenService.GetRolesAsync(user);
         var accessToken = accessTokenService.GenerateAccessToken(user, userRoles);

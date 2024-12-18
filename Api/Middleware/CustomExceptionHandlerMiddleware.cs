@@ -8,10 +8,12 @@ namespace Presentation.Middleware;
 public class CustomExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<CustomExceptionHandlerMiddleware> _logger;
 
-    public CustomExceptionHandlerMiddleware(RequestDelegate next)
+    public CustomExceptionHandlerMiddleware(RequestDelegate next, ILogger<CustomExceptionHandlerMiddleware> logger)
     {
         _next = next;
+        _logger = logger; 
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -22,24 +24,24 @@ public class CustomExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {
-            Log.Error(exception, "An unhandled exception occurred."); 
+            _logger.LogCritical(exception, "An unhandled exception occurred."); 
             await HandleExceptionAsync(context, exception);
         }
     }
 
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/json";
 
         if (exception is AppException appException)
         {
             context.Response.StatusCode = appException.StatusCode;
-            Log.Warning("Handled AppException: {Message}", appException.Message); 
+            _logger.LogError("Handled AppException: {Message}", appException.Message); 
         }
         else
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            Log.Error("Unhandled Exception: {Message}", exception.Message); 
+            _logger.LogError("Unhandled Exception: {Message}", exception.Message); 
         }
 
         var errorDetails = new

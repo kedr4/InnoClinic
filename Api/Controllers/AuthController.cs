@@ -13,6 +13,7 @@ public class AuthController : ControllerBase
     private readonly IAccessTokenService _accessTokenService;
     private readonly IRefreshTokenService _refreshTokenService;
 
+
     public AuthController(IAuthService authService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService)
     {
         _authService = authService;
@@ -22,7 +23,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register-patient")]
     public async Task<IActionResult> RegisterPatientAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
-    {
+    { 
         var userId = await _authService.RegisterUserAsync(request.Email, request.Password, Roles.Patient, cancellationToken);
 
         return Ok(userId);
