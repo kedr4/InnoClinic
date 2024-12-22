@@ -1,30 +1,30 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Services.Auth;
+using Application.Filters;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
 
+[ServiceFilter(typeof(ValidateModelFilter))]
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly IAccessTokenService _accessTokenService;
     private readonly IRefreshTokenService _refreshTokenService;
 
 
-    public AuthController(IAuthService authService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService)
+    public AuthController(IAuthService authService, IRefreshTokenService refreshTokenService)
     {
         _authService = authService;
-        _accessTokenService = accessTokenService;
         _refreshTokenService = refreshTokenService;
     }
 
     [HttpPost("register-patient")]
     public async Task<IActionResult> RegisterPatientAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        var userId = await _authService.RegisterUserAsync(request.Email, request.Password, Roles.Patient, cancellationToken);
+        var userId = await _authService.RegisterUserAsync(request, Roles.Patient, cancellationToken);
 
         return Ok(userId);
     }
@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     [HttpPost("register-doctor")]
     public async Task<IActionResult> RegisterDoctorAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        var userId = await _authService.RegisterUserAsync(request.Email, request.Password, Roles.Doctor, cancellationToken);
+        var userId = await _authService.RegisterUserAsync(request, Roles.Doctor, cancellationToken);
 
         return Ok(userId);
     }
@@ -63,12 +63,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("confirm-mail")]
-    public async Task<IActionResult> ConfirmMailAsync([FromQuery] Guid userId, string token, CancellationToken cancellationToken)
+    public async Task<IActionResult> ConfirmMailAsync([FromQuery] ConfirmMailRequest request, CancellationToken cancellationToken)
     {
-        var request = new ConfirmMailRequest(userId, token);
         await _authService.ConfirmMailAsync(request, cancellationToken);
 
         return Ok(true);
     }
-
 }

@@ -1,23 +1,38 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Services.Email;
+using Application.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace Application.Services.Email;
 
-public class EmailSenderService(IOptions<EmailSenderOptions> options, ISmtpClientService _smtpClientService) : IEmailSenderService
+public class EmailSenderService(IOptions<EmailSenderOptions> emailSenderOptions, ISmtpClientService smtpClientService) : IEmailSenderService
 {
-    private readonly EmailSenderOptions _options = options.Value;
+  
 
-    public Task SendEmailAsync(EmailMessage message, CancellationToken cancellationToken)
+    public async Task SendEmailAsync(EmailMessage mailMessage, CancellationToken cancellationToken)
     {
-        return SendAsync(CreateEmailMessage(message), cancellationToken);
+        var emailMessage = CreateEmailMessage(mailMessage);
+
+        if (!smtpClientService.IsConnected)
+        {
+            await smtpClientService.ConnectAsync(cancellationToken);
+        }
+
+        await smtpClientService.SendAsync(emailMessage, cancellationToken);
     }
 
     private MimeMessage CreateEmailMessage(EmailMessage message)
     {
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress("InnoClinic", _options.Sender));
+        
+        if (emailSenderOptions.Value.UserName is null)
+        {
+            throw new ArgumentNullException(nameof(emailSenderOptions));
+        }
+
+        emailMessage.From.Add(new MailboxAddress("InnoClinic", emailSenderOptions.Value.Sender));
         emailMessage.To.Add(new MailboxAddress(message.AddresseeName, message.Addressee));
         emailMessage.Subject = message.Subject;
 
@@ -29,15 +44,5 @@ public class EmailSenderService(IOptions<EmailSenderOptions> options, ISmtpClien
         emailMessage.Body = bodyBuilder.ToMessageBody();
 
         return emailMessage;
-    }
-
-    private async Task SendAsync(MimeMessage mailMessage, CancellationToken cancellationToken)
-    {
-        if (!_smtpClientService.IsConnected)
-        {
-            await _smtpClientService.ConnectAsync(cancellationToken);
-        }
-
-        await _smtpClientService.SendAsync(mailMessage, cancellationToken);
     }
 }

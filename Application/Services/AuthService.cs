@@ -19,9 +19,9 @@ public class AuthService
 ) : IAuthService
 {
 
-    public async Task<Guid> RegisterUserAsync(string email, string password, Roles role, CancellationToken cancellationToken)
+    public async Task<Guid> RegisterUserAsync(CreateUserRequest request, Roles role, CancellationToken cancellationToken)
     {
-        if (await userManager.FindByEmailAsync(email) is not null)
+        if (await userManager.FindByEmailAsync(request.Email) is not null)
         {
             throw new UserAlreadyExistsException();
         }
@@ -29,11 +29,11 @@ public class AuthService
         var user = new User()
         {
             Id = Guid.NewGuid(),
-            Email = email,
-            UserName = email.Split('@')[0]
+            Email = request.Email,
+            UserName = request.Email.Split('@')[0]
         };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await userManager.CreateAsync(user, request.Password);
 
         //await userManager.AddToRoleAsync(user, role.ToString()); //???????????????????????????????????????????????????????????????????????????????????????????????????????
 
@@ -66,7 +66,7 @@ public class AuthService
         //    throw new EmailIsNotConfirmedException();
         //}
 
-        var userRoles = await accessTokenService.GetRolesAsync(user);
+        var userRoles = await userManager.GetRolesAsync(user);
         var accessToken = accessTokenService.GenerateAccessToken(user, userRoles);
 
         if (string.IsNullOrEmpty(accessToken))
@@ -74,27 +74,27 @@ public class AuthService
             throw new UnauthorizedAccessException("User role is not suitable");
         }
 
-        var existingToken = await refreshTokenRepository.GetUserRefreshTokenAsync(user.Id, cancellationToken);
-
-        if (existingToken is not null)
+        RefreshToken refreshToken = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(user.Id, user.RefreshToken.Token, cancellationToken);
+        if (refreshToken == null || refreshToken.ExpiryTime>=DateTimeOffset.Now)
         {
-            if (existingToken.ExpiryTime < DateTime.UtcNow)
-            {
-                await refreshTokenService.RevokeRefreshTokenAsync(user.Id, cancellationToken);
-                existingToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
-            }
+            refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
         }
-        else
-        {
-            existingToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
-        }
+        //if (user.RefreshToken is null)
+        //{
+        //    refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
 
-        return new LoginUserResponse(user.Id, accessToken, existingToken.Token);
+        //}
+        //else
+        //{
+        //    refreshToken = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(user.Id, user.RefreshToken.Token, cancellationToken);
+        //}
+
+        return new LoginUserResponse(user.Id, accessToken, refreshToken.Token);
     }
 
     public async Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)
     {
-        var result = await refreshTokenService.RevokeRefreshTokenAsync(request.UserId, cancellationToken);
+        var result = await refreshTokenService.RevokeRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
         return result;
     }
@@ -108,7 +108,7 @@ public class AuthService
             throw new UserNotFoundException(request.UserId);
         }
 
-        var result = await userManager.ConfirmEmailAsync(user, request.Code);
+        var result = await userManager.ConfirmEmailAsync(user, request.Token);
 
         if (!result.Succeeded)
         {

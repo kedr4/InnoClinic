@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Persistance.Repositories;
 using Application.Abstractions.Services.Auth;
+using Application.Exceptions;
 using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +31,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         ErrorCaster.CheckForUserIdEmptyException(userId);
 
-        var refreshTokenEntity = await GetUserRefreshTokenAsync(userId, cancellationToken);
+        var refreshTokenEntity = await GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
         if (refreshTokenEntity is null || refreshTokenEntity.Token != refreshToken)
         {
@@ -40,21 +41,21 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         return true;
     }
 
-    public async Task<bool> RevokeRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<bool> RevokeRefreshTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
-        var refreshToken = await GetUserRefreshTokenAsync(userId, cancellationToken);
+        var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
         if (refreshToken is null)
         {
             return true;
         }
 
-        if (refreshToken.UserId != userId)
+        if (refreshTokenEntity.UserId != userId)
         {
             return false;
         }
 
-        await refreshTokenRepository.RemoveTokenAsync(refreshToken);
+        refreshTokenRepository.RemoveTokenAsync(refreshTokenEntity);
         await refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
         return true;
@@ -79,6 +80,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         var randomBytes = new byte[length];
+
         using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomBytes);
@@ -101,34 +103,47 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         if (!result)
         {
-            throw new InvalidOperationException("Refresh token is not valid");
+            throw new InvalidRefreshTokenException(request.refreshToken);
         }
 
-        var roles = await accessTokenService.GetRolesAsync(user);
+        var roles = await userManager.GetRolesAsync(user);
         var token = accessTokenService.GenerateAccessToken(user, roles);
 
         if (string.IsNullOrEmpty(token))
         {
-            throw new InvalidOperationException("User role is not suitable");
+            throw new InvalidUserRoleException();
         }
 
         return new LoginUserResponse(user.Id, token, request.refreshToken);
 
     }
-    private async Task<RefreshToken?> GetUserRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+
+    private async Task<RefreshToken?> GetByUserIdAndRefreshTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
-        var refreshToken = await refreshTokenRepository.GetUserRefreshTokenAsync(userId, cancellationToken);
+
+        if (refreshToken is null)
+        {
+            throw new RefreshTokenIsNullException();
+        }
+
+        var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
+
+
+        if (refreshTokenEntity is null)
+        {
+            throw new RefreshTokenIsNullException();
+        }
 
         var currTime = DateTimeOffset.Now;
 
-        if (refreshToken.ExpiryTime < currTime)
+        if (refreshTokenEntity.ExpiryTime < currTime)
         {
-            await refreshTokenRepository.RemoveTokenAsync(refreshToken);
+            refreshTokenRepository.RemoveTokenAsync(refreshTokenEntity);
 
             return null;
         }
 
-        return refreshToken;
+        return refreshTokenEntity;
     }
 
 }

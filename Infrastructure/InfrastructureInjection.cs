@@ -1,21 +1,14 @@
 ﻿using Application.Abstractions.Persistance.Repositories;
-using Application.Abstractions.Services.Auth;
-using Application.Abstractions.Services.Email;
-using Application.Helpers;
-using Application.Services;
-using Application.Services.Auth;
-using Application.Services.Email;
+using Application.Options;
 using Domain.Models;
+using Infrastructure.Options;
 using Infrastructure.Persistance;
 using Infrastructure.Persistance.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using System.Reflection;
 
 namespace Infrastructure;
 
@@ -31,41 +24,17 @@ public static class InfrastructureInjection
         return services;
     }
 
-    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+    public static IConfigurationBuilder AddInfrastructureUserSecrets(this IConfigurationBuilder configurationBuilder)
     {
-        var options = services.BuildServiceProvider().GetRequiredService<IOptions<JwtSettingsOptions>>();
-        var key = options.Value.Secret;
-        var issuer = options.Value.Issuer;
-        var audience = options.Value.Audience;
-        var expiryMinutes = options.Value.ExpiryMinutes;
+        configurationBuilder.AddUserSecrets(Assembly.GetExecutingAssembly());
 
-        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
-        {
-            throw new ArgumentException("JWT settings are missing or incomplete.");
-        }
+        return configurationBuilder;
+    }
 
-        services.AddIdentityServices();
-
-
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = issuer,
-                ValidAudience = audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
-            };
-        });
+    public static IServiceCollection AddInfrastructureOptions(this IServiceCollection services)
+    {
+        services.AddOptions<DatabaseOptions>()
+            .BindConfiguration(nameof(DatabaseOptions));
 
         return services;
     }
@@ -76,30 +45,25 @@ public static class InfrastructureInjection
         //    services.AddDbContext<AuthDbContext>(options =>
         //options.UseInMemoryDatabase("InMemoryDb"));
 
+        var databaseOptions = new DatabaseOptions();
+        configuration.GetSection(nameof(DatabaseOptions)).Bind(databaseOptions);
+
+        var connectionString = databaseOptions.ConnectionString;
+
+        if (connectionString is null)
+        {
+            throw new ArgumentNullException("Connection string is null");
+        }
+
         services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+          options.UseSqlServer(connectionString));
 
         return services;
     }
 
-    public static IServiceCollection AddProgramOptions(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.Configure<JwtSettingsOptions>(configuration.GetSection("JwtSettingsOptions"));
-        services.Configure<EmailSenderOptions>(configuration.GetSection("EmailSenderOptions"));
-
-        return services;
-    }
-
-    public static IServiceCollection AddServices(this IServiceCollection services)
-    {
-
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IAccessTokenService, AccessTokenService>();
-        services.AddScoped<IEmailSenderService, EmailSenderService>();
-        services.AddScoped<IConfirmMessageSenderService, ConfirmMessageSenderService>();
-        services.AddScoped<ISmtpClientService, SmtpClientService>();
 
         return services;
     }

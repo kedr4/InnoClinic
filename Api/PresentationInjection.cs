@@ -45,15 +45,4 @@ public static class PresentationInjection
 
         return services;
     }
-
-    public static IApplicationBuilder UseSwagger(this IApplicationBuilder applicationBuilder, WebApplication app)
-    {
-        if (app.Environment.IsDevelopment())
-        {
-            applicationBuilder.UseSwagger();
-            applicationBuilder.UseSwaggerUI();
-        }
-
-        return applicationBuilder;
-    }
 }

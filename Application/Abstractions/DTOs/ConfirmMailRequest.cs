@@ -1,3 +1,3 @@
 ﻿namespace Application.Abstractions.DTOs;
 
-public record ConfirmMailRequest(Guid UserId, string Code);
+public record ConfirmMailRequest(Guid UserId, string Token);

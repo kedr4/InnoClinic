@@ -11,7 +11,7 @@ public class ConfirmMailRequestValidator : AbstractValidator<ConfirmMailRequest>
             .NotEmpty().
             WithMessage("UserId is required");
 
-        RuleFor(x => x.Code)
+        RuleFor(x => x.Token)
             .NotEmpty().
             WithMessage("Code is required");
     }

@@ -1,6 +1,8 @@
 ﻿using Application.Abstractions.Services.Auth;
 using Application.Helpers;
+using Application.Options;
 using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,12 +14,10 @@ namespace Application.Services;
 public class AccessTokenService : IAccessTokenService
 {
     private readonly JwtSettingsOptions _jwtSettings;
-    private readonly Microsoft.AspNetCore.Identity.UserManager<User> _userManager;
 
-    public AccessTokenService(IOptions<JwtSettingsOptions> jwtSettings, Microsoft.AspNetCore.Identity.UserManager<User> userManager)
+    public AccessTokenService(IOptions<JwtSettingsOptions> jwtSettings)
     {
         _jwtSettings = jwtSettings.Value;
-        _userManager = userManager;
     }
 
     public string GenerateAccessToken(User user, IList<string> userRoles)
@@ -51,10 +51,4 @@ public class AccessTokenService : IAccessTokenService
 
         return tokenHandler.WriteToken(token);
     }
-
-    public Task<IList<string>> GetRolesAsync(User user)
-    {
-        return _userManager.GetRolesAsync(user);
-    }
-
 }

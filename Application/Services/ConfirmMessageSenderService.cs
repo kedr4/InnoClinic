@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Services.Email;
+using Application.Options;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,10 @@ public class ConfirmMessageSenderService(IEmailSenderService emailSenderService,
 {
     public async Task SendEmailConfirmMessageAsync(User user, CancellationToken cancellationToken)
     {
+        if(emailSenderOptions is null)
+        {
+            throw new ArgumentNullException(nameof(emailSenderOptions));
+        }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var confirmUrl = $"{emailSenderOptions.Value.ConfirmUrl}?userId={user.Id}&token={Uri.EscapeDataString(token)}";
 

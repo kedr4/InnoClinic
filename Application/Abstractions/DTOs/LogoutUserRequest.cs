@@ -1,3 +1,3 @@
 ﻿namespace Application.Abstractions.DTOs;
 
-public record LogoutUserRequest(Guid UserId);
+public record LogoutUserRequest(Guid UserId, string RefreshToken);
