@@ -10,5 +10,9 @@ public class LogoutUserRequestValidator : AbstractValidator<LogoutUserRequest>
         RuleFor(x => x.UserId)
             .NotEmpty()
             .WithMessage("UserId must not be empty.");
+
+        RuleFor(x => x.RefreshToken)
+            .NotEmpty().
+            WithMessage("RefreshToken is required");
     }
 }

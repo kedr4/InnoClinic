@@ -4,5 +4,5 @@ public record EmailMessage(
     string Addressee,
     string Subject,
     string Content,
-    string AddresseeName = ""
+    string AddresseeName
 );

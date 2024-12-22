@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
 
-[ServiceFilter(typeof(ValidateModelFilter))]
+[ValidationFilter]
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -37,6 +37,13 @@ public class AuthController : ControllerBase
         return Ok(userId);
     }
 
+    [HttpPost("register-receptionist")]
+    public async Task<IActionResult> RegisterReceptionistAsync([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    {
+        var userId = await _authService.RegisterUserAsync(request, Roles.Receptionist, cancellationToken);
+
+        return Ok(userId);
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync([FromBody] LoginUserRequest request, CancellationToken cancellationToken)

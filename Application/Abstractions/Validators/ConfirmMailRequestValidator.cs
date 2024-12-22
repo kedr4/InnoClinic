@@ -8,11 +8,11 @@ public class ConfirmMailRequestValidator : AbstractValidator<ConfirmMailRequest>
     public ConfirmMailRequestValidator()
     {
         RuleFor(x => x.UserId)
-            .NotEmpty().
-            WithMessage("UserId is required");
+            .NotEmpty()
+            .WithMessage("UserId is required");
 
         RuleFor(x => x.Token)
-            .NotEmpty().
-            WithMessage("Code is required");
+            .NotEmpty()
+            .WithMessage("Code is required");
     }
 }

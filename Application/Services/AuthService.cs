@@ -3,7 +3,6 @@ using Application.Abstractions.Persistance.Repositories;
 using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
 using Application.Exceptions;
-using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -35,11 +34,20 @@ public class AuthService
 
         var result = await userManager.CreateAsync(user, request.Password);
 
-        //await userManager.AddToRoleAsync(user, role.ToString()); //???????????????????????????????????????????????????????????????????????????????????????????????????????
+        if (!result.Succeeded)
+        {
+            throw new UserRegistrationException(result.Errors.ToString());
+        }
 
+        await userManager.AddToRoleAsync(user, role.ToString());
         await confirmMessageSenderService.SendEmailConfirmMessageAsync(user, cancellationToken);
 
-        ErrorCaster.CheckForUserRegistrationException(result);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description)); ;
+
+            throw new UserRegistrationException(errors);
+        }
 
         return user.Id;
     }
@@ -54,17 +62,17 @@ public class AuthService
             throw new UserNotFoundException(loginUserRequest.Email);
         }
 
-        var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Email, loginUserRequest.Password);
+        var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Password);
 
         if (!isValid)
         {
             throw new UnauthorizedAccessException("Password or email is incorrect");
         }
 
-        //if (!user.EmailConfirmed)
-        //{
-        //    throw new EmailIsNotConfirmedException();
-        //}
+        if (!user.EmailConfirmed)
+        {
+            throw new EmailIsNotConfirmedException();
+        }
 
         var userRoles = await userManager.GetRolesAsync(user);
         var accessToken = accessTokenService.GenerateAccessToken(user, userRoles);
@@ -74,22 +82,16 @@ public class AuthService
             throw new UnauthorizedAccessException("User role is not suitable");
         }
 
-        RefreshToken refreshToken = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(user.Id, user.RefreshToken.Token, cancellationToken);
-        if (refreshToken == null || refreshToken.ExpiryTime>=DateTimeOffset.Now)
+        var existingRefreshToken = await refreshTokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
+
+        if (existingRefreshToken is not null)
         {
-            refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
+            await refreshTokenService.RevokeRefreshTokenAsync(user.Id, existingRefreshToken.Token, cancellationToken);
         }
-        //if (user.RefreshToken is null)
-        //{
-        //    refreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
 
-        //}
-        //else
-        //{
-        //    refreshToken = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(user.Id, user.RefreshToken.Token, cancellationToken);
-        //}
+        var newRefreshToken = await refreshTokenService.CreateUserRefreshTokenAsync(user, cancellationToken);
 
-        return new LoginUserResponse(user.Id, accessToken, refreshToken.Token);
+        return new LoginUserResponse(user.Id, accessToken, newRefreshToken.Token);
     }
 
     public async Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)
@@ -113,11 +115,10 @@ public class AuthService
         if (!result.Succeeded)
         {
             throw new InvalidConfirmTokenException();
-
         }
     }
 
-    private async Task<bool> CheckUserPasswordAsync(User user, string email, string password)
+    private async Task<bool> CheckUserPasswordAsync(User user, string password)
     {
         if (user is null)
         {
@@ -125,7 +126,11 @@ public class AuthService
         }
 
         bool isPasswordValid = await userManager.CheckPasswordAsync(user, password);
-        ErrorCaster.CheckForInvalidLoginException(isPasswordValid);
+
+        if (!isPasswordValid)
+        {
+            throw new InvalidLoginException();
+        }
 
         return isPasswordValid;
     }

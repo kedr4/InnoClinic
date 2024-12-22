@@ -1,7 +1,6 @@
 ﻿using Application.Abstractions.DTOs;
 using Application.Abstractions.Services.Email;
 using Application.Options;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -9,7 +8,7 @@ namespace Application.Services.Email;
 
 public class EmailSenderService(IOptions<EmailSenderOptions> emailSenderOptions, ISmtpClientService smtpClientService) : IEmailSenderService
 {
-  
+
 
     public async Task SendEmailAsync(EmailMessage mailMessage, CancellationToken cancellationToken)
     {
@@ -26,7 +25,7 @@ public class EmailSenderService(IOptions<EmailSenderOptions> emailSenderOptions,
     private MimeMessage CreateEmailMessage(EmailMessage message)
     {
         var emailMessage = new MimeMessage();
-        
+
         if (emailSenderOptions.Value.UserName is null)
         {
             throw new ArgumentNullException(nameof(emailSenderOptions));

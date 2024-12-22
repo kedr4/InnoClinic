@@ -1,10 +1,12 @@
 ﻿using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
+using Application.Filters;
 using Application.Options;
 using Application.Services;
 using Application.Services.Auth;
 using Application.Services.Email;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,22 +18,26 @@ namespace Presentation;
 
 public static class ApplicationInjection
 {
-    public static IServiceCollection AddValidation(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        AddValidation(services);
+        AddApplicationOptions(services);
+        AddAuthenticationServices(services, configuration);
+        AddServices(services);
+
+        return services;
+    }
+
+    private static IServiceCollection AddValidation(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }
 
-    
-    public static IConfigurationBuilder AddApplicationUserSecrets(this IConfigurationBuilder configurationBuilder)
-    {
-        configurationBuilder.AddUserSecrets(Assembly.GetExecutingAssembly());
 
-        return configurationBuilder;
-    }
 
-    public static IServiceCollection AddApplicationOptions(this IServiceCollection services)
+    private static IServiceCollection AddApplicationOptions(this IServiceCollection services)
     {
         services.AddOptions<JwtSettingsOptions>()
             .BindConfiguration(nameof(JwtSettingsOptions));
@@ -42,7 +48,7 @@ public static class ApplicationInjection
 
     }
 
-    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtOptions = new JwtSettingsOptions();
         configuration.GetSection(nameof(JwtSettingsOptions)).Bind(jwtOptions);
@@ -81,8 +87,7 @@ public static class ApplicationInjection
         return services;
     }
 
-
-    public static IServiceCollection AddServices(this IServiceCollection services)
+   private static IServiceCollection AddServices(this IServiceCollection services)
     {
 
         services.AddScoped<IAuthService, AuthService>();

@@ -2,9 +2,9 @@
 using Application.Abstractions.Persistance.Repositories;
 using Application.Abstractions.Services.Auth;
 using Application.Exceptions;
-using Application.Helpers;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Application.Services;
@@ -29,7 +29,10 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
             throw new ArgumentException("Refresh token cannot be null or empty", nameof(refreshToken));
         }
 
-        ErrorCaster.CheckForUserIdEmptyException(userId);
+        if (userId == Guid.Empty)
+        {
+            throw new UserIdEmptyException();
+        }
 
         var refreshTokenEntity = await GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
@@ -45,9 +48,9 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
-        if (refreshToken is null)
+        if (refreshTokenEntity is null)
         {
-            return true;
+            return false;
         }
 
         if (refreshTokenEntity.UserId != userId)
@@ -61,49 +64,17 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         return true;
     }
 
-    private static RefreshToken GenerateRefreshToken(User user)
-    {
-        ErrorCaster.CheckForUserIdEmptyException(user.Id);
 
-        return new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Token = GenerateSecureRandomString(7),
-            AddedTime = DateTimeOffset.UtcNow,
-            ExpiryTime = DateTimeOffset.UtcNow.AddMonths(1),
-            User = user
-        };
-    }
-
-    private static string GenerateSecureRandomString(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var randomBytes = new byte[length];
-
-        using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(randomBytes);
-        }
-
-        var builder = new StringBuilder(length);
-        foreach (var b in randomBytes)
-        {
-            builder.Append(chars[b % chars.Length]);
-        }
-
-        return builder.ToString();
-    }
 
     public async Task<LoginUserResponse> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByIdAsync(request.userId.ToString());
+        var user = await userManager.FindByIdAsync(request.UserId.ToString());
 
-        var result = await ValidateRefreshTokenAsync(request.userId, request.refreshToken, cancellationToken);
+        var result = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
         if (!result)
         {
-            throw new InvalidRefreshTokenException(request.refreshToken);
+            throw new InvalidRefreshTokenException(request.RefreshToken);
         }
 
         var roles = await userManager.GetRolesAsync(user);
@@ -114,7 +85,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
             throw new InvalidUserRoleException();
         }
 
-        return new LoginUserResponse(user.Id, token, request.refreshToken);
+        return new LoginUserResponse(user.Id, token, request.RefreshToken);
 
     }
 
@@ -144,6 +115,34 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         }
 
         return refreshTokenEntity;
+    }
+
+    private static RefreshToken GenerateRefreshToken(User user)
+    {
+        if (user.Id == Guid.Empty)
+        {
+            throw new UserIdEmptyException();
+        }
+
+        return new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = GenerateSecureRandomString(7),
+            AddedTime = DateTimeOffset.UtcNow,
+            ExpiryTime = DateTimeOffset.UtcNow.AddMonths(1),
+            User = user
+        };
+    }
+
+    private static string GenerateSecureRandomString(int length)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        using var randomGenerator = RandomNumberGenerator.Create();
+        var bytes = new byte[length];
+        randomGenerator.GetBytes(bytes);
+
+        return new string(bytes.Select(b => chars[b % chars.Length]).ToArray());
     }
 
 }

@@ -13,7 +13,7 @@ public class ConfirmMessageSenderService(IEmailSenderService emailSenderService,
 {
     public async Task SendEmailConfirmMessageAsync(User user, CancellationToken cancellationToken)
     {
-        if(emailSenderOptions is null)
+        if (emailSenderOptions is null)
         {
             throw new ArgumentNullException(nameof(emailSenderOptions));
         }

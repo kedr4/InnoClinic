@@ -1,8 +1,7 @@
 ﻿using Application.Abstractions.Services.Auth;
-using Application.Helpers;
+using Application.Exceptions;
 using Application.Options;
 using Domain.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,7 +21,10 @@ public class AccessTokenService : IAccessTokenService
 
     public string GenerateAccessToken(User user, IList<string> userRoles)
     {
-        ErrorCaster.CheckForUserIdEmptyException(user.Id);
+        if (user.Id == Guid.Empty)
+        {
+            throw new UserIdEmptyException();
+        }
 
         var secretKey = _jwtSettings.Secret;
         var issuer = _jwtSettings.Issuer;

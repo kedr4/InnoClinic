@@ -1,6 +1,5 @@
 ﻿using Application.Abstractions.DTOs;
 using Domain.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Abstractions.Services.Auth;
 

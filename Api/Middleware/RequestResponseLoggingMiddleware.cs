@@ -1,4 +1,6 @@
-﻿public class RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger)
+﻿namespace Presentation.Middleware;
+
+public class RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {

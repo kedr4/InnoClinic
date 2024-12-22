@@ -1,3 +1,3 @@
 ﻿namespace Application.Abstractions.DTOs;
 
-public record RefreshTokenRequest(string refreshToken, Guid userId);
+public record RefreshTokenRequest(string RefreshToken, Guid UserId);
