@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.Options;
+
 public class EmailSenderOptions
 {
     [Required(ErrorMessage = "Sender email is required.")]
