@@ -5,7 +5,6 @@ using Application.Exceptions;
 using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Application.Services;
 
@@ -15,7 +14,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     public async Task<RefreshToken> CreateUserRefreshTokenAsync(User user, CancellationToken cancellationToken)
     {
         var refreshToken = GenerateRefreshToken(user);
-
         await refreshTokenRepository.CreateTokenAsync(refreshToken, cancellationToken);
         await refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
@@ -26,7 +24,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            throw new ArgumentException("Refresh token cannot be null or empty", nameof(refreshToken));
+            throw new RefreshTokenIsNullException();
         }
 
         if (userId == Guid.Empty)
@@ -36,7 +34,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         var refreshTokenEntity = await GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
-        if (refreshTokenEntity is null || refreshTokenEntity.Token != refreshToken)
+        if (refreshTokenEntity is null || refreshTokenEntity.Token != refreshToken || refreshTokenEntity.ExpiryTime < DateTimeOffset.Now)
         {
             return false;
         }
@@ -48,12 +46,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
 
-        if (refreshTokenEntity is null)
-        {
-            return false;
-        }
-
-        if (refreshTokenEntity.UserId != userId)
+        if (refreshTokenEntity is null || refreshTokenEntity.UserId != userId)
         {
             return false;
         }
@@ -64,12 +57,9 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         return true;
     }
 
-
-
     public async Task<LoginUserResponse> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(request.UserId.ToString());
-
         var result = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
         if (!result)
@@ -86,28 +76,25 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
         }
 
         return new LoginUserResponse(user.Id, token, request.RefreshToken);
+    }
 
+    public async Task<RefreshToken?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var refreshToken = await refreshTokenRepository.GetByUserIdAsync(userId, cancellationToken);
+
+        return refreshToken;
     }
 
     private async Task<RefreshToken?> GetByUserIdAndRefreshTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
-
-        if (refreshToken is null)
-        {
-            throw new RefreshTokenIsNullException();
-        }
-
         var refreshTokenEntity = await refreshTokenRepository.GetByUserIdAndRefreshTokenAsync(userId, refreshToken, cancellationToken);
-
 
         if (refreshTokenEntity is null)
         {
             throw new RefreshTokenIsNullException();
         }
 
-        var currTime = DateTimeOffset.Now;
-
-        if (refreshTokenEntity.ExpiryTime < currTime)
+        if (refreshTokenEntity.ExpiryTime < DateTimeOffset.Now)
         {
             refreshTokenRepository.RemoveTokenAsync(refreshTokenEntity);
 
@@ -119,11 +106,6 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
     private static RefreshToken GenerateRefreshToken(User user)
     {
-        if (user.Id == Guid.Empty)
-        {
-            throw new UserIdEmptyException();
-        }
-
         return new RefreshToken
         {
             Id = Guid.NewGuid(),
@@ -144,5 +126,4 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         return new string(bytes.Select(b => chars[b % chars.Length]).ToArray());
     }
-
 }

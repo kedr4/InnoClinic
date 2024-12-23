@@ -1,6 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
-using Presentation.Middleware;
-using Serilog;
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace Presentation;
@@ -9,23 +9,9 @@ public static class PresentationInjection
 {
     public static WebApplicationBuilder AddPresentationServices(this WebApplicationBuilder builder, IConfiguration configuration)
     {
-        AddSwagger(builder.Services);
-        AddApplicationSerilog(builder);
-        AddUserSecrets(builder.Configuration);
-
-        return builder;
-    }
-
-    public static IApplicationBuilder UseCustomExceptionHandlingMiddleware(this IApplicationBuilder app)
-    {
-        app.UseMiddleware<CustomExceptionHandlerMiddleware>();
-
-        return app;
-    }
-
-    public static WebApplication UseApplicationSerilog(this WebApplication builder, IConfiguration configuration)
-    {
-        builder.UseSerilogRequestLogging();
+        builder.Services.AddSwagger();
+        builder.AddApplicationSerilog();
+        builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 
         return builder;
     }
@@ -66,17 +52,9 @@ public static class PresentationInjection
 
     private static WebApplicationBuilder AddApplicationSerilog(this WebApplicationBuilder builder)
     {
-        
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
 
         return builder;
-    }
-
-    private static IConfigurationBuilder AddUserSecrets(this IConfigurationBuilder configurationBuilder)
-    {
-        configurationBuilder.AddUserSecrets(Assembly.GetExecutingAssembly());
-
-        return configurationBuilder;
     }
 }

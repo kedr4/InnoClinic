@@ -1,15 +1,3 @@
 ﻿namespace Application.Abstractions.DTOs;
 
-public class LoginUserResponse
-{
-    public Guid UserId { get; set; }
-    public string AccessToken { get; set; }
-    public string RefreshToken { get; set; }
-
-    public LoginUserResponse(Guid userId, string accessToken, string refreshToken)
-    {
-        UserId = userId;
-        AccessToken = accessToken;
-        RefreshToken = refreshToken;
-    }
-}
+public record LoginUserResponse(Guid UserId, string AccessToken, string RefreshToken);

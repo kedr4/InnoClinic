@@ -6,7 +6,6 @@ namespace Infrastructure.Persistance.Repositories;
 
 public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenRepository
 {
-
     public async Task CreateTokenAsync(RefreshToken token, CancellationToken cancellationToken)
     {
         await context.RefreshTokens.AddAsync(token, cancellationToken);
@@ -16,14 +15,14 @@ public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenReposi
     {
         return await context.RefreshTokens
             .Include(token => token.User)
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.Token == refreshToken, cancellationToken);
+            .SingleOrDefaultAsync(x => x.UserId == userId && x.Token == refreshToken, cancellationToken);
     }
 
     public async Task<RefreshToken?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.RefreshTokens
             .Where(token => token.UserId == userId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
     public void RemoveTokenAsync(RefreshToken token)

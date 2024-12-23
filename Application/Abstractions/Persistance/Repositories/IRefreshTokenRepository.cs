@@ -9,5 +9,4 @@ public interface IRefreshTokenRepository
     public Task<RefreshToken?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken);
     public void RemoveTokenAsync(RefreshToken token);
     public Task SaveChangesAsync(CancellationToken cancellationToken);
-
 }

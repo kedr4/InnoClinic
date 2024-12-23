@@ -1,12 +1,11 @@
 ﻿using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
-using Application.Filters;
+using Application.Helpers;
 using Application.Options;
 using Application.Services;
 using Application.Services.Auth;
 using Application.Services.Email;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,38 +13,20 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 
-namespace Presentation;
+namespace Application;
 
 public static class ApplicationInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        AddValidation(services);
-        AddApplicationOptions(services);
-        AddAuthenticationServices(services, configuration);
-        AddServices(services);
+        services
+            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+            .AddOptionsWithValidation<JwtSettingsOptions>()
+            .AddOptionsWithValidation<EmailSenderOptions>()
+            .AddAuthenticationServices(configuration)
+            .AddServices();
 
         return services;
-    }
-
-    private static IServiceCollection AddValidation(this IServiceCollection services)
-    {
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-        return services;
-    }
-
-
-
-    private static IServiceCollection AddApplicationOptions(this IServiceCollection services)
-    {
-        services.AddOptions<JwtSettingsOptions>()
-            .BindConfiguration(nameof(JwtSettingsOptions));
-        services.AddOptions<EmailSenderOptions>()
-            .BindConfiguration(nameof(EmailSenderOptions));
-
-        return services;
-
     }
 
     private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
@@ -58,7 +39,7 @@ public static class ApplicationInjection
         var audience = jwtOptions.Audience;
         var expiryMinutes = jwtOptions.ExpiryMinutes;
 
-        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
+        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience) || expiryMinutes == 0)
         {
             throw new ArgumentException("JWT settings are missing or incomplete.");
         }
@@ -80,24 +61,22 @@ public static class ApplicationInjection
                 ValidIssuer = issuer,
                 ValidAudience = audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                ClockSkew = TimeSpan.FromMinutes(expiryMinutes)
+                ClockSkew = TimeSpan.FromMinutes(5)
             };
         });
 
         return services;
     }
 
-   private static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(this IServiceCollection services)
     {
-
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IAccessTokenService, AccessTokenService>();
-        services.AddScoped<IEmailSenderService, EmailSenderService>();
-        services.AddScoped<IConfirmMessageSenderService, ConfirmMessageSenderService>();
-        services.AddScoped<ISmtpClientService, SmtpClientService>();
-
+        services
+            .AddScoped<IAuthService, AuthService>()
+            .AddScoped<IRefreshTokenService, RefreshTokenService>()
+            .AddScoped<IAccessTokenService, AccessTokenService>()
+            .AddScoped<IEmailSenderService, EmailSenderService>()
+            .AddScoped<IConfirmMessageSenderService, ConfirmMessageSenderService>()
+            .AddScoped<ISmtpClientService, SmtpClientService>();
         return services;
     }
-
 }

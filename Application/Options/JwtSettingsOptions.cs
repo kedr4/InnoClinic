@@ -14,7 +14,7 @@ public class JwtSettingsOptions
     [Required(ErrorMessage = "The Audience is required.")]
     public string Audience { get; set; }
 
-    [MinLength(0, ErrorMessage = "ExpiryMinutes must be greater than 0.")]
+    [Range(1, 1000, ErrorMessage = "ExpiryMinutes must be greater than 0.")]
     public int ExpiryMinutes { get; set; }
 }
 

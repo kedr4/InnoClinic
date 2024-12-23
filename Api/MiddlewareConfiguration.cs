@@ -4,9 +4,10 @@ namespace Presentation;
 
 public static class MiddlewareConfiguration
 {
-    public static void ConfigureMiddleware(WebApplication app)
+    public static void ConfigureMiddlewares(this WebApplication app)
     {
-        app.UseCustomExceptionHandlingMiddleware();
+        app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+        app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {
@@ -15,11 +16,9 @@ public static class MiddlewareConfiguration
             app.MapGet("/", () => Results.Redirect("/swagger"));
         }
 
-        app.UseApplicationSerilog(app.Configuration);
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseMiddleware<RequestResponseLoggingMiddleware>();
     }
 }

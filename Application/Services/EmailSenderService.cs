@@ -8,11 +8,9 @@ namespace Application.Services.Email;
 
 public class EmailSenderService(IOptions<EmailSenderOptions> emailSenderOptions, ISmtpClientService smtpClientService) : IEmailSenderService
 {
-
-
     public async Task SendEmailAsync(EmailMessage mailMessage, CancellationToken cancellationToken)
     {
-        var emailMessage = CreateEmailMessage(mailMessage);
+        var emailMessage = CreateMimeMessage(mailMessage);
 
         if (!smtpClientService.IsConnected)
         {
@@ -22,14 +20,9 @@ public class EmailSenderService(IOptions<EmailSenderOptions> emailSenderOptions,
         await smtpClientService.SendAsync(emailMessage, cancellationToken);
     }
 
-    private MimeMessage CreateEmailMessage(EmailMessage message)
+    private MimeMessage CreateMimeMessage(EmailMessage message)
     {
         var emailMessage = new MimeMessage();
-
-        if (emailSenderOptions.Value.UserName is null)
-        {
-            throw new ArgumentNullException(nameof(emailSenderOptions));
-        }
 
         emailMessage.From.Add(new MailboxAddress("InnoClinic", emailSenderOptions.Value.Sender));
         emailMessage.To.Add(new MailboxAddress(message.AddresseeName, message.Addressee));

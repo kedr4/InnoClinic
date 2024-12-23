@@ -23,7 +23,7 @@ public class CustomExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogCritical(exception, "An unhandled exception occurred.");
+            _logger.LogInformation(exception, "An unhandled exception occurred.");
             await HandleExceptionAsync(context, exception);
         }
     }
@@ -35,12 +35,12 @@ public class CustomExceptionHandlerMiddleware
         if (exception is AppException appException)
         {
             context.Response.StatusCode = appException.StatusCode;
-            _logger.LogError("Handled AppException: {Message}", appException.Message);
+            _logger.LogInformation("Handled AppException: {Message}", appException.Message);
         }
         else
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            _logger.LogError("Unhandled Exception: {Message}", exception.Message);
+            _logger.LogCritical("Unhandled Exception: {Message}", exception.Message);
         }
 
         var errorDetails = new

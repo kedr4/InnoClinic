@@ -1,5 +1,4 @@
 ﻿using Application.Abstractions.Services.Auth;
-using Application.Exceptions;
 using Application.Options;
 using Domain.Models;
 using Microsoft.Extensions.Options;
@@ -21,14 +20,10 @@ public class AccessTokenService : IAccessTokenService
 
     public string GenerateAccessToken(User user, IList<string> userRoles)
     {
-        if (user.Id == Guid.Empty)
-        {
-            throw new UserIdEmptyException();
-        }
-
         var secretKey = _jwtSettings.Secret;
         var issuer = _jwtSettings.Issuer;
         var audience = _jwtSettings.Audience;
+        var minutes = _jwtSettings.ExpiryMinutes;
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -42,7 +37,7 @@ public class AccessTokenService : IAccessTokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(1),
+            Expires = DateTime.UtcNow.AddMinutes(minutes),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = credentials

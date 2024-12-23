@@ -1,5 +1,4 @@
 ﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Persistance.Repositories;
 using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
 using Application.Exceptions;
@@ -13,7 +12,6 @@ public class AuthService
      UserManager<User> userManager,
      IAccessTokenService accessTokenService,
      IRefreshTokenService refreshTokenService,
-     IRefreshTokenRepository refreshTokenRepository,
      IConfirmMessageSenderService confirmMessageSenderService
 ) : IAuthService
 {
@@ -62,27 +60,17 @@ public class AuthService
             throw new UserNotFoundException(loginUserRequest.Email);
         }
 
-        var isValid = await CheckUserPasswordAsync(user, loginUserRequest.Password);
+        await CheckUserPasswordAsync(user, loginUserRequest.Password);
 
-        if (!isValid)
-        {
-            throw new UnauthorizedAccessException("Password or email is incorrect");
-        }
-
-        if (!user.EmailConfirmed)
-        {
-            throw new EmailIsNotConfirmedException();
-        }
+        //if (!user.EmailConfirmed)
+        //{
+        //    throw new EmailIsNotConfirmedException();
+        //}
 
         var userRoles = await userManager.GetRolesAsync(user);
         var accessToken = accessTokenService.GenerateAccessToken(user, userRoles);
 
-        if (string.IsNullOrEmpty(accessToken))
-        {
-            throw new UnauthorizedAccessException("User role is not suitable");
-        }
-
-        var existingRefreshToken = await refreshTokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
+        var existingRefreshToken = await refreshTokenService.GetByUserIdAsync(user.Id, cancellationToken);
 
         if (existingRefreshToken is not null)
         {
@@ -94,11 +82,9 @@ public class AuthService
         return new LoginUserResponse(user.Id, accessToken, newRefreshToken.Token);
     }
 
-    public async Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)
+    public Task<bool> LogoutUserAsync(LogoutUserRequest request, CancellationToken cancellationToken)
     {
-        var result = await refreshTokenService.RevokeRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
-
-        return result;
+        return refreshTokenService.RevokeRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
     }
 
     public async Task ConfirmMailAsync(ConfirmMailRequest request, CancellationToken cancellationToken)
@@ -118,12 +104,8 @@ public class AuthService
         }
     }
 
-    private async Task<bool> CheckUserPasswordAsync(User user, string password)
+    private async Task CheckUserPasswordAsync(User user, string password)
     {
-        if (user is null)
-        {
-            throw new UserIsNullException();
-        }
 
         bool isPasswordValid = await userManager.CheckPasswordAsync(user, password);
 
@@ -132,7 +114,6 @@ public class AuthService
             throw new InvalidLoginException();
         }
 
-        return isPasswordValid;
     }
 
 }

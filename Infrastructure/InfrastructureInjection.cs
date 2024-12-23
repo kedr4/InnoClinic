@@ -1,10 +1,9 @@
 ﻿using Application.Abstractions.Persistance.Repositories;
-using Application.Abstractions.Services.Auth;
+using Application.Helpers;
 using Domain.Models;
 using Infrastructure.Options;
 using Infrastructure.Persistance;
 using Infrastructure.Persistance.Repositories;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,29 +15,23 @@ public static class InfrastructureInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        AddIdentityServices(services);
-        AddInfrastructureOptions(services);
-        AddEntityFramework(services, configuration);
-        AddRepositories(services);
-        AddRoles(services);
+        services
+            .AddIdentityServices()
+            .AddOptionsWithValidation<DatabaseOptions>()
+            .AddEntityFramework(configuration)
+            .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         return services;
     }
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
-        services.AddIdentity<User, UserRole>()
+        services.AddIdentity<User, UserRole>(options => { 
+            options.SignIn.RequireConfirmedEmail = true; 
+        })
                    .AddEntityFrameworkStores<AuthDbContext>()
                    .AddDefaultTokenProviders()
                    .AddRoles<UserRole>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddInfrastructureOptions(this IServiceCollection services)
-    {
-        services.AddOptions<DatabaseOptions>()
-            .BindConfiguration(nameof(DatabaseOptions));
 
         return services;
     }
@@ -49,13 +42,12 @@ public static class InfrastructureInjection
         configuration.GetSection(nameof(DatabaseOptions)).Bind(databaseOptions);
         var connectionString = databaseOptions.ConnectionString;
 
-        if (connectionString is null)
+        if (string.IsNullOrEmpty(connectionString))
         {
             throw new ArgumentNullException("Connection string is null");
         }
 
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
 
         services.AddDbContext<AuthDbContext>(options =>
                 {
@@ -79,20 +71,6 @@ public static class InfrastructureInjection
                             }
                     }
                 });
-
-        return services;
-    }
-
-    private static IServiceCollection AddRepositories(this IServiceCollection services)
-    {
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddRoles(this IServiceCollection services)
-    {
-        services.AddScoped<IRolesService, RolesService>();
 
         return services;
     }
