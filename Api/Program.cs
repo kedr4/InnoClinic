@@ -25,7 +25,7 @@ public class Program
         var app = builder.Build();
 
         app.UseSerilogRequestLogging();
-        RoleSetup.SetupRolesAsync(app);
+        await RoleSetup.SetupRolesAsync(app);
         MiddlewareConfiguration.ConfigureMiddleware(app);
 
         app.MapControllers();
