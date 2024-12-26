@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace Presentation;
