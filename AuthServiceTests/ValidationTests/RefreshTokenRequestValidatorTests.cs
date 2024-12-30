@@ -1,8 +1,4 @@
-﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Validators;
-using FluentAssertions;
-
-namespace AuthServiceTests.ValidationTests;
+﻿namespace AuthServiceTests.ValidationTests;
 
 public class RefreshTokenRequestValidatorTests
 {
@@ -23,10 +19,10 @@ public class RefreshTokenRequestValidatorTests
 
     [Theory]
     [InlineData("", "00000000-0000-0000-0000-000000000000")]
-    [InlineData(null, "00000000-0000-0000-0000-000000000000")] 
-    [InlineData(" ", "00000000-0000-0000-0000-000000000000")] 
+    [InlineData(null, "00000000-0000-0000-0000-000000000000")]
+    [InlineData(" ", "00000000-0000-0000-0000-000000000000")]
     [InlineData("ValidRefreshToken123", null)]
-    [InlineData("ValidRefreshToken123", "00000000-0000-0000-0000-000000000000")] 
+    [InlineData("ValidRefreshToken123", "00000000-0000-0000-0000-000000000000")]
     public void RefreshTokenRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string refreshToken, string userId)
     {
         // Arrange

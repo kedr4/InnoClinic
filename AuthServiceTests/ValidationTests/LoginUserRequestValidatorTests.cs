@@ -1,8 +1,4 @@
-﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Validators;
-using FluentAssertions;
-
-namespace AuthServiceTests.ValidationTests;
+﻿namespace AuthServiceTests.ValidationTests;
 
 public class LoginUserRequestValidatorTests
 {
@@ -16,7 +12,7 @@ public class LoginUserRequestValidatorTests
     {
         // Arrange
         var request = new LoginUserRequest(email, password);
-        
+
         // Act
         var result = _validator.Validate(request);
 

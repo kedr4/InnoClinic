@@ -1,8 +1,4 @@
-﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Validators;
-using FluentAssertions;
-
-namespace AuthServiceTests.ValidationTests;
+﻿namespace AuthServiceTests.ValidationTests;
 
 public class ConfirmMailRequestValidatorTests
 {
@@ -48,7 +44,7 @@ public class ConfirmMailRequestValidatorTests
     [InlineData(null, "valid-token-123", "UserId is required")]
     [InlineData("123e4567-e89b-12d3-a456-426614174000", "", "Code is required")]
     [InlineData("123e4567-e89b-12d3-a456-426614174000", null, "Code is required")]
-    public void ConfirmMailRequestValidator_ShouldReturnCorrectErrorMessage(string userId, string token, string expectedMessage)
+    public void ConfirmMailRequestValidator_ShouldReturnCorrectErrorMessage(string? userId, string? token, string expectedMessage)
     {
         // Arrange
         var id = string.IsNullOrEmpty(userId) ? Guid.Empty : Guid.Parse(userId);

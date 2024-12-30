@@ -1,8 +1,4 @@
-﻿using Application.Abstractions.DTOs;
-using Application.Abstractions.Validators;
-using FluentAssertions;
-
-namespace AuthServiceTests.ValidationTests;
+﻿namespace AuthServiceTests.ValidationTests;
 
 public class LogoutUserRequestValidatorTests
 {
@@ -22,11 +18,11 @@ public class LogoutUserRequestValidatorTests
     }
 
     [Theory]
-    [InlineData(null, "ValidRefreshToken123")] 
+    [InlineData(null, "ValidRefreshToken123")]
     [InlineData("00000000-0000-0000-0000-000000000000", "ValidRefreshToken123")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "")]
-    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", null)] 
-    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "  ")] 
+    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", null)]
+    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "  ")]
     public void LogoutUserRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string userId, string refreshToken)
     {
         // Arrange
@@ -40,9 +36,9 @@ public class LogoutUserRequestValidatorTests
     }
 
     [Theory]
-    [InlineData(null, "ValidRefreshToken123", "UserId must not be empty.")] 
-    [InlineData("00000000-0000-0000-0000-000000000000", "ValidRefreshToken123", "UserId must not be empty.")] 
-    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "", "RefreshToken is required")] 
+    [InlineData(null, "ValidRefreshToken123", "UserId must not be empty.")]
+    [InlineData("00000000-0000-0000-0000-000000000000", "ValidRefreshToken123", "UserId must not be empty.")]
+    [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "", "RefreshToken is required")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", null, "RefreshToken is required")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "  ", "RefreshToken is required")]
     public void LogoutUserRequestValidator_ShouldReturnCorrectErrorMessage(string userId, string refreshToken, string expectedMessage)

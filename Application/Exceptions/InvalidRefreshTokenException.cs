@@ -3,7 +3,7 @@
 public class InvalidRefreshTokenException : AppException
 {
     public InvalidRefreshTokenException(string refreshToken)
-       : base($"Refresh token is not valid {refreshToken}", 401)
+       : base($"Invalid refresh token: {refreshToken}", 401)
     { }
 
 }

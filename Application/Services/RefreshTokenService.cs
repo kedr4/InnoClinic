@@ -24,7 +24,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
     {
         if (string.IsNullOrEmpty(refreshToken))
         {
-            throw new RefreshTokenIsNullException();
+            throw new InvalidRefreshTokenException(refreshToken);
         }
 
         if (userId == Guid.Empty)
@@ -91,7 +91,7 @@ public class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository,
 
         if (refreshTokenEntity is null)
         {
-            throw new RefreshTokenIsNullException();
+            throw new InvalidRefreshTokenException(refreshToken);
         }
 
         if (refreshTokenEntity.ExpiryTime < DateTimeOffset.Now)
