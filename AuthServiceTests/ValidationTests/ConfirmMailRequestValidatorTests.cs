@@ -26,7 +26,7 @@ public class ConfirmMailRequestValidatorTests
     [InlineData("123e4567-e89b-12d3-a456-426614174000", "")]
     [InlineData("123e4567-e89b-12d3-a456-426614174000", null)]
     [InlineData("123e4567-e89b-12d3-a456-426614174000", "   ")]
-    public void ConfirmMailRequestValidator_ShouldFailValidation_WhenUserIdOrTokenIsInvalid(string userId, string token)
+    public void ConfirmMailRequestValidator_ShouldFailValidation_WhenUserIdOrTokenIsInvalid(string? userId, string? token)
     {
         // Arrange
         var id = string.IsNullOrEmpty(userId) ? Guid.Empty : Guid.Parse(userId);

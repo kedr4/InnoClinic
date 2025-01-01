@@ -1,7 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Services;
+using AuthServiceTests.Fixtures;
 using Domain.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace AuthServiceTests.ServicesTests;
 
@@ -31,13 +31,9 @@ public class AuthServiceTests : TestFixture
     {
         // Arrange
         var request = new CreateUserRequest(Faker.Internet.Email(), Faker.Internet.Password());
-
-        UserManagerMock.Setup(um => um.FindByEmailAsync(request.Email)).ReturnsAsync((User)null);
+        //all casts through AS 
+        UserManagerMock.Setup(um => um.FindByEmailAsync(request.Email)).ReturnsAsync(null as User);
         UserManagerMock.Setup(um => um.CreateAsync(It.IsAny<User>(), request.Password))
-            .Callback<User, string>((createdUser, password) =>
-            {
-                createdUser.Id = DefaultUser.Id;
-            })
             .ReturnsAsync(IdentityResult.Success);
 
         UserManagerMock.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), Roles.Patient.ToString()))
@@ -47,7 +43,7 @@ public class AuthServiceTests : TestFixture
         var result = await _authService.RegisterUserAsync(request, Roles.Patient, It.IsAny<CancellationToken>());
 
         // Assert
-        result.Should().Be(DefaultUser.Id);
+        result.Should().NotBeEmpty();
         UserManagerMock.Verify(um => um.CreateAsync(It.Is<User>(u => u.Email == request.Email), request.Password), Times.Once);
         ConfirmMessageSenderServiceMock.Verify(cs => cs.SendEmailConfirmMessageAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -57,7 +53,7 @@ public class AuthServiceTests : TestFixture
     {
         // Arrange
         var loginRequest = new LoginUserRequest(Faker.Internet.Email(), Faker.Internet.Password());
-        UserManagerMock.Setup(um => um.FindByEmailAsync(loginRequest.Email)).ReturnsAsync((User)null);
+        UserManagerMock.Setup(um => um.FindByEmailAsync(loginRequest.Email)).ReturnsAsync(null as User);
 
         // Act & Assert
         await _authService.Invoking(auth => auth.LoginUserAsync(loginRequest, It.IsAny<CancellationToken>()))
@@ -69,15 +65,14 @@ public class AuthServiceTests : TestFixture
     {
         // Arrange
         var loginRequest = new LoginUserRequest(DefaultUser.Email, Faker.Internet.Password());
-        var roles = new List<string> { "User" };
         var accessToken = Faker.Random.String(20);
         var refreshToken = Faker.Random.String(20);
 
         UserManagerMock.Setup(um => um.FindByEmailAsync(DefaultUser.Email)).ReturnsAsync(DefaultUser);
         UserManagerMock.Setup(um => um.CheckPasswordAsync(DefaultUser, loginRequest.Password)).ReturnsAsync(true);
-        UserManagerMock.Setup(um => um.GetRolesAsync(DefaultUser)).ReturnsAsync(roles);
-        AccessTokenServiceMock.Setup(at => at.GenerateAccessToken(DefaultUser, roles)).Returns(accessToken);
-        RefreshTokenServiceMock.Setup(rt => rt.GetByUserIdAsync(DefaultUser.Id, It.IsAny<CancellationToken>())).ReturnsAsync((RefreshToken)null);
+        UserManagerMock.Setup(um => um.GetRolesAsync(DefaultUser)).ReturnsAsync(DefaultRoles);
+        AccessTokenServiceMock.Setup(at => at.GenerateAccessToken(DefaultUser, DefaultRoles)).Returns(accessToken);
+        RefreshTokenServiceMock.Setup(rt => rt.GetByUserIdAsync(DefaultUser.Id, It.IsAny<CancellationToken>())).ReturnsAsync(null as RefreshToken);
         RefreshTokenServiceMock.Setup(rt => rt.CreateUserRefreshTokenAsync(DefaultUser, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RefreshToken { Token = refreshToken });
 

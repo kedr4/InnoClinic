@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using AuthServiceTests.Fixtures;
 using Domain.Models;
 
 namespace AuthServiceTests.ServicesTests;
@@ -65,7 +66,7 @@ public class RefreshTokenServiceTests : TestFixture
 
         RefreshTokenRepositoryMock
             .Setup(r => r.GetByUserIdAndRefreshTokenAsync(request.UserId, request.RefreshToken, cancellationToken))
-            .ReturnsAsync((RefreshToken)null);
+            .ReturnsAsync(null as RefreshToken);
 
         // Act
         var action = async () => await RefreshTokenService.RefreshTokenAsync(request, cancellationToken);
@@ -83,10 +84,10 @@ public class RefreshTokenServiceTests : TestFixture
         var validToken = new RefreshToken
         {
             UserId = DefaultUser.Id,
-            Token = request.RefreshToken,
+            Token = "validToken",
             ExpiryTime = DateTimeOffset.UtcNow.AddMinutes(10)
         };
-        var roles = new List<string> { "User" };
+
         var newAccessToken = "newAccessToken";
         var cancellationToken = CancellationToken.None;
 
@@ -95,8 +96,8 @@ public class RefreshTokenServiceTests : TestFixture
             .ReturnsAsync(validToken);
 
         UserManagerMock.Setup(um => um.FindByIdAsync(request.UserId.ToString())).ReturnsAsync(DefaultUser);
-        UserManagerMock.Setup(um => um.GetRolesAsync(DefaultUser)).ReturnsAsync(roles);
-        AccessTokenServiceMock.Setup(a => a.GenerateAccessToken(DefaultUser, roles)).Returns(newAccessToken);
+        UserManagerMock.Setup(um => um.GetRolesAsync(DefaultUser)).ReturnsAsync(DefaultRoles);
+        AccessTokenServiceMock.Setup(a => a.GenerateAccessToken(DefaultUser, DefaultRoles)).Returns(newAccessToken);
 
         // Act
         var result = await RefreshTokenService.RefreshTokenAsync(request, cancellationToken);

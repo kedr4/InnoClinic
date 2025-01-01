@@ -23,10 +23,11 @@ public class LogoutUserRequestValidatorTests
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", null)]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "  ")]
-    public void LogoutUserRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string userId, string refreshToken)
+    public void LogoutUserRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string? userId, string? refreshToken)
     {
         // Arrange
-        var request = new LogoutUserRequest(Guid.TryParse(userId, out var parsedUserId) ? parsedUserId : Guid.Empty, refreshToken);
+        var id = string.IsNullOrEmpty(userId) ? Guid.Empty : Guid.Parse(userId);
+        var request = new LogoutUserRequest(id, refreshToken);
 
         // Act
         var result = _validator.Validate(request);
@@ -41,7 +42,7 @@ public class LogoutUserRequestValidatorTests
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "", "RefreshToken is required")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", null, "RefreshToken is required")]
     [InlineData("b3f0e2e6-4d2a-4f85-91f8-c965c2e8d3b2", "  ", "RefreshToken is required")]
-    public void LogoutUserRequestValidator_ShouldReturnCorrectErrorMessage(string userId, string refreshToken, string expectedMessage)
+    public void LogoutUserRequestValidator_ShouldReturnCorrectErrorMessage(string? userId, string? refreshToken, string expectedMessage)
     {
         // Arrange
         var request = new LogoutUserRequest(Guid.TryParse(userId, out var parsedUserId) ? parsedUserId : Guid.Empty, refreshToken);

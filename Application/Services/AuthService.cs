@@ -55,7 +55,7 @@ public class AuthService
     {
         var user = await userManager.FindByEmailAsync(loginUserRequest.Email);
 
-        if (user == null)
+        if (user is null)
         {
             throw new UserNotFoundException(loginUserRequest.Email);
         }

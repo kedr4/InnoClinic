@@ -23,7 +23,7 @@ public class RefreshTokenRequestValidatorTests
     [InlineData(" ", "00000000-0000-0000-0000-000000000000")]
     [InlineData("ValidRefreshToken123", null)]
     [InlineData("ValidRefreshToken123", "00000000-0000-0000-0000-000000000000")]
-    public void RefreshTokenRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string refreshToken, string userId)
+    public void RefreshTokenRequestValidator_ShouldFailValidation_WhenDataIsInvalid(string? refreshToken, string? userId)
     {
         // Arrange
         var request = new RefreshTokenRequest(refreshToken, Guid.TryParse(userId, out var parsedUserId) ? parsedUserId : Guid.Empty);
@@ -41,7 +41,7 @@ public class RefreshTokenRequestValidatorTests
     [InlineData(" ", "00000000-0000-0000-0000-000000000000", "Refresh token is required.")]
     [InlineData("ValidRefreshToken123", null, "User ID is required.")]
     [InlineData("ValidRefreshToken123", "00000000-0000-0000-0000-000000000000", "User ID is required.")]
-    public void RefreshTokenRequestValidator_ShouldReturnCorrectErrorMessage(string refreshToken, string userId, string expectedMessage)
+    public void RefreshTokenRequestValidator_ShouldReturnCorrectErrorMessage(string? refreshToken, string? userId, string expectedMessage)
     {
         // Arrange
         var request = new RefreshTokenRequest(refreshToken, Guid.TryParse(userId, out var parsedUserId) ? parsedUserId : Guid.Empty);
