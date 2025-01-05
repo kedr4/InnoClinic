@@ -3,7 +3,6 @@ using Application.Abstractions.Services.Auth;
 using Application.Abstractions.Services.Email;
 using Application.Options;
 using Application.Services;
-using Domain.Models;
 using Microsoft.Extensions.Options;
 
 namespace AuthServiceTests.Fixtures;

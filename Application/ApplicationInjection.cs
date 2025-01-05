@@ -24,6 +24,7 @@ public static class ApplicationInjection
             .AddOptionsWithValidation<JwtSettingsOptions>()
             .AddOptionsWithValidation<EmailSenderOptions>()
             .AddAuthenticationServices(configuration)
+            .AddAuthorization()
             .AddServices();
 
         return services;
@@ -77,6 +78,7 @@ public static class ApplicationInjection
             .AddScoped<IEmailSenderService, EmailSenderService>()
             .AddScoped<IConfirmMessageSenderService, ConfirmMessageSenderService>()
             .AddScoped<ISmtpClientService, SmtpClientService>();
+
         return services;
     }
 }

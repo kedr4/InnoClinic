@@ -26,10 +26,7 @@ public static class InfrastructureInjection
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
-        services.AddIdentity<User, UserRole>(options =>
-        {
-            options.SignIn.RequireConfirmedEmail = true;
-        })
+        services.AddIdentity<User, UserRole>()
                    .AddEntityFrameworkStores<AuthDbContext>()
                    .AddDefaultTokenProviders()
                    .AddRoles<UserRole>();

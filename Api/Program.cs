@@ -23,15 +23,15 @@ public class Program
             .AddEnvironmentVariables()
             .Build();
 
-        builder.Services.AddApplicationServices(configuration);
         builder.Services.AddInfrastructureServices(configuration);
+        builder.Services.AddApplicationServices(configuration);
+        builder.Services.AddControllers();
         builder.AddPresentationServices(configuration);
 
-        builder.Services.AddControllers();
-        builder.Services.AddAuthorization();
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
+
         await app.SetupRolesAsync();
 
         app.ConfigureMiddlewares();

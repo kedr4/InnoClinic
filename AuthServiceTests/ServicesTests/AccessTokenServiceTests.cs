@@ -1,5 +1,4 @@
-﻿using Application.Options;
-using Application.Services;
+﻿using Application.Services;
 using AuthServiceTests.Fixtures;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -39,7 +38,7 @@ public class AccessTokenServiceTests : TestFixture
         var token = _accessTokenService.GenerateAccessToken(DefaultUser, roles);
 
         // Act
-        Thread.Sleep(61000); 
+        Thread.Sleep(61000);
         var validationResult = ValidateToken(token);
 
         // Assert

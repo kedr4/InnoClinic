@@ -2,6 +2,7 @@
 using Application.Abstractions.Services.Auth;
 using Application.Filters;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
@@ -53,6 +54,7 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> LogoutAsync([FromBody] LogoutUserRequest request, CancellationToken cancellationToken)
     {

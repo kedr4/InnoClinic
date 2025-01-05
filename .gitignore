@@ -404,3 +404,4 @@ bin/
 obj/
 
 /Application/Helpers/JwtSettings.cs
+/Api/appsettings.Development.json

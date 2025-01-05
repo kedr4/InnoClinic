@@ -1,6 +1,5 @@
 ﻿using Application.Exceptions;
 using AuthServiceTests.Fixtures;
-using Domain.Models;
 
 namespace AuthServiceTests.ServicesTests;
 
