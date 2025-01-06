@@ -40,11 +40,6 @@ public static class InfrastructureInjection
         configuration.GetSection(nameof(DatabaseOptions)).Bind(databaseOptions);
         var connectionString = databaseOptions.ConnectionString;
 
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new ArgumentNullException("Connection string is null");
-        }
-
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         services.AddDbContext<AuthDbContext>(options =>
@@ -53,7 +48,8 @@ public static class InfrastructureInjection
                     {
                         case "Development":
                             {
-                                options.UseInMemoryDatabase("InMemoryDb");
+                                //options.UseInMemoryDatabase("InMemoryDb");
+                                options.UseSqlServer(databaseOptions.ConnectionString);
 
                                 break;
                             }

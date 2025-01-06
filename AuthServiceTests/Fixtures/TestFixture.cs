@@ -54,8 +54,5 @@ public class TestFixture
         };
 
         DefaultRoles = new List<string> { "TestRole1", "TestRole2", "TestRole3" };
-        // вынести то, что не глобальное на всех
-        // сделать базовцую фикстуру и от нее унаследовать конкретные под каждый сервис 
-        // 
     }
 }

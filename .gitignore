@@ -405,3 +405,4 @@ obj/
 
 /Application/Helpers/JwtSettings.cs
 /Api/appsettings.Development.json
+/Api/out
