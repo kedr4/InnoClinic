@@ -1,0 +1,54 @@
+services:
+  auth_api-1:
+    image: authapi:latest
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+    networks:
+      - loadbalancing
+      - sqlserver-network
+
+  auth_api-2:
+    image: authapi:latest
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+      - auth_api-1
+    networks:
+      - loadbalancing
+      - sqlserver-network
+
+
+  proxy:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "82:80"
+    links:
+      - auth_api-1
+      - auth_api-2
+    depends_on:
+      - auth_api-1
+      - auth_api-2
+    networks:
+      - loadbalancing
+
+  sqlserver: 
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Strong!Passw0rd"
+    ports:
+      - "1433:1433"
+    networks:
+      - sqlserver-network
+
+
+networks: 
+  loadbalancing:
+    driver: bridge
+  sqlserver-network:
+    
