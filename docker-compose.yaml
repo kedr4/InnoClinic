@@ -19,8 +19,6 @@ services:
     networks:
       - loadbalancing
       - sqlserver-network
-    deploy: 
-      delay: 10s
 
 
   proxy:

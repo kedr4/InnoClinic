@@ -32,7 +32,7 @@ public class Program
 
         var app = builder.Build();
 
-        await app.SetupRolesAsync();
+        await app.SeedDatabaseAsync();
 
         app.ConfigureMiddlewares();
         app.MapControllers();
