@@ -1,6 +1,8 @@
 services:
-  auth_api-1:
+  auth_api:
     image: authapi:latest
+    deploy:
+      replicas: 2
     environment: 
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
@@ -8,31 +10,15 @@ services:
     networks:
       - loadbalancing
       - sqlserver-network
-
-  auth_api-2:
-    image: authapi:latest
-    environment: 
-      - ASPNETCORE_ENVIRONMENT=Development
-    depends_on:
-      - sqlserver
-      - auth_api-1
-    networks:
-      - loadbalancing
-      - sqlserver-network
-
-
+ 
   proxy:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "82:80"
-    links:
-      - auth_api-1
-      - auth_api-2
     depends_on:
-      - auth_api-1
-      - auth_api-2
+      - auth_api
     networks:
       - loadbalancing
 
@@ -51,4 +37,3 @@ networks:
   loadbalancing:
     driver: bridge
   sqlserver-network:
-    
