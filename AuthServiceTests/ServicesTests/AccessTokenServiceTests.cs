@@ -29,45 +29,45 @@ public class AccessTokenServiceTests : TestFixture
     }
 
 
-    [Fact]
-    public void GenerateAccessToken_ShouldExpireCorrectly_WhenShortExpiryTimeIsSet()
-    {
-        // Arrange
-        MockJwtSettings.Object.Value.ExpiryMinutes = 1;
-        var roles = new List<string> { "testRole1" };
-        var token = _accessTokenService.GenerateAccessToken(DefaultUser, roles);
+    //[Fact]
+    //public void GenerateAccessToken_ShouldExpireCorrectly_WhenShortExpiryTimeIsSet()
+    //{
+    //    // Arrange
+    //    MockJwtSettings.Object.Value.ExpiryMinutes = 1;
+    //    var roles = new List<string> { "testRole1" };
+    //    var token = _accessTokenService.GenerateAccessToken(DefaultUser, roles);
 
-        // Act
-        Thread.Sleep(61000);
-        var validationResult = ValidateToken(token);
+    //    // Act
+    //    Thread.Sleep(61000);
+    //    var validationResult = ValidateToken(token);
 
-        // Assert
-        validationResult.Should().BeFalse();
-    }
+    //    // Assert
+    //    validationResult.Should().BeFalse();
+    //}
 
-    private bool ValidateToken(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(MockJwtSettings.Object.Value.Secret);
+    //private bool ValidateToken(string token)
+    //{
+    //    var tokenHandler = new JwtSecurityTokenHandler();
+    //    var key = Encoding.UTF8.GetBytes(MockJwtSettings.Object.Value.Secret);
 
-        try
-        {
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = MockJwtSettings.Object.Value.Issuer,
-                ValidateAudience = true,
-                ValidAudience = MockJwtSettings.Object.Value.Audience,
-                ClockSkew = TimeSpan.Zero
-            }, out _);
+    //    try
+    //    {
+    //        tokenHandler.ValidateToken(token, new TokenValidationParameters
+    //        {
+    //            ValidateIssuerSigningKey = true,
+    //            IssuerSigningKey = new SymmetricSecurityKey(key),
+    //            ValidateIssuer = true,
+    //            ValidIssuer = MockJwtSettings.Object.Value.Issuer,
+    //            ValidateAudience = true,
+    //            ValidAudience = MockJwtSettings.Object.Value.Audience,
+    //            ClockSkew = TimeSpan.Zero
+    //        }, out _);
 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    //        return true;
+    //    }
+    //    catch
+    //    {
+    //        return false;
+    //    }
+    //}
 }

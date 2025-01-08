@@ -35,14 +35,14 @@ public static class ApplicationInjection
         var jwtOptions = new JwtSettingsOptions();
         configuration.GetSection(nameof(JwtSettingsOptions)).Bind(jwtOptions);
 
-        var key = jwtOptions.Secret;
+        var secret = jwtOptions.Secret;
         var issuer = jwtOptions.Issuer;
         var audience = jwtOptions.Audience;
         var expiryMinutes = jwtOptions.ExpiryMinutes;
 
-        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience) || expiryMinutes == 0)
+        if (string.IsNullOrEmpty(secret) || string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience) || expiryMinutes == 0)
         {
-            throw new ArgumentException("JWT settings are missing or incomplete.");
+            throw new ArgumentException($"{secret} {issuer} {audience} {expiryMinutes} JWT settings are missing or incomplete.");
         }
 
         services.AddAuthentication(options =>
@@ -61,7 +61,7 @@ public static class ApplicationInjection
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = issuer,
                 ValidAudience = audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
                 ClockSkew = TimeSpan.FromMinutes(5)
             };
         });

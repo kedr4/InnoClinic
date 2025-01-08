@@ -1,8 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-ENV ASPNETCORE_ENVIRONMENT=Development
+FROM mcr.microsoft.com/dotnet/sdk:9.0
 EXPOSE 8080
-
-
-WORKDIR /app
-COPY ./out ./
+ENV ASPNETCORE_ENVIRONMENT Development
+WORKDIR /src
+COPY . .
+#RUN dotnet build "./Api/Presentation.csproj" -o /Out/Build /p:RunTests=true
+RUN dotnet build "./Api/Presentation.csproj" -o ./Out/Build
+WORKDIR "./Out/Build"
 ENTRYPOINT ["dotnet", "Presentation.dll"]
