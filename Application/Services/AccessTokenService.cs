@@ -32,7 +32,7 @@ public class AccessTokenService : IAccessTokenService
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
-        claims.AddRange(userRoles.Select(role => new Claim("role:", role)));
+        claims.AddRange(userRoles.Select(role => new Claim("role", role)));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
