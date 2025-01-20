@@ -10,3 +10,6 @@
 /Presentation/obj
 /DataAccess/bin/Debug/net9.0
 /Business/bin/Debug/net9.0
+/IntegrationTests/bin/Debug/net9.0
+/IntegrationTests/obj
+/IntegrationTests/bin/Release/net9.0
