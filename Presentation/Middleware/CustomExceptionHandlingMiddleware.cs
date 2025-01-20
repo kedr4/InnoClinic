@@ -1,16 +1,19 @@
 ﻿using Business.Exceptions;
 using Newtonsoft.Json;
 using System.Net;
+using ILogger = Serilog.ILogger;
 
 namespace Presentation.Middleware
 {
     public class CustomExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger _logger;
 
-        public CustomExceptionHandlerMiddleware(RequestDelegate next)
+        public CustomExceptionHandlerMiddleware(RequestDelegate next, ILogger logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -43,6 +46,8 @@ namespace Presentation.Middleware
                 };
 
                 var result = JsonConvert.SerializeObject(errorDetails);
+                _logger.Error(result);
+
                 return context.Response.WriteAsync(result);
             }
             else
@@ -55,6 +60,8 @@ namespace Presentation.Middleware
                 };
 
                 var result = JsonConvert.SerializeObject(errorDetails);
+                _logger.Error(result);
+
                 return context.Response.WriteAsync(result);
             }
         }

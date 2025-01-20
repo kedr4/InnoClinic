@@ -13,10 +13,21 @@ public class MongoDBClient
 
     public MongoDBClient(IOptions<MongoDBSettings> options)
     {
-        _client = new MongoClient(options.Value.ConnectionString);
+        var testConnection = Environment.GetEnvironmentVariable("Test_MongoDbConnectionString");
+
+        if (!string.IsNullOrEmpty(testConnection))
+        {
+            _client = new MongoClient(testConnection);
+        }
+        else
+        {
+            _client = new MongoClient(options.Value.ConnectionString);
+        }
+
         _databaseName = options.Value.DatabaseName;
         _collectionName = options.Value.CollectionName;
     }
+    
 
     public IMongoCollection<Office> GetOfficeCollection()
     {
@@ -25,4 +36,3 @@ public class MongoDBClient
         return db.GetCollection<Office>(_collectionName);
     }
 }
-

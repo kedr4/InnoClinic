@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Business.Commands.CreateOffice;
+namespace Business.Offices.Commands.CreateOffice;
 
 public class CreateOfficeCommandValidator : AbstractValidator<CreateOfficeCommand>
 {

@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\DeleteOffice\" />
-    <Folder Include="Commands\ChangeOfficeStatus\" />
-    <Folder Include="Commands\UpdateOffice\" />
-    <Folder Include="DTOs\" />
-    <Folder Include="Queries\GetAllOffices\" />
-    <Folder Include="Queries\GetOfficeById\" />
-    <Folder Include="Repositories\Interfaces\" />
+    <Compile Remove="Offices\Commands\DeleteOffice\**" />
+    <Compile Remove="Repositories\**" />
+    <EmbeddedResource Remove="Offices\Commands\DeleteOffice\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <None Remove="Offices\Commands\DeleteOffice\**" />
+    <None Remove="Repositories\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +26,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
   </ItemGroup>
 
 </Project>

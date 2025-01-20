@@ -1,23 +1,29 @@
-﻿using Business.Repositories.Interfaces;
+﻿using Business.Exceptions;
+using Business.Repositories.Interfaces;
 using DataAccess.Models;
 using MediatR;
 
-namespace Business.Commands.CreateOffice;
+namespace Business.Offices.Commands.UpdateOffice;
 
-public class CreateOfficeCommandHandler : IRequestHandler<CreateOfficeCommand, Guid>
+public class UpdateOfficeCommandHandler : IRequestHandler<UpdateOfficeCommand, Guid>
 {
     private readonly IOfficeRepository _officeRepository;
 
-    public CreateOfficeCommandHandler(IOfficeRepository officeRepository)
+    public UpdateOfficeCommandHandler(IOfficeRepository officeRepository)
     {
         _officeRepository = officeRepository;
     }
 
-    public async Task<Guid> Handle(CreateOfficeCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UpdateOfficeCommand request, CancellationToken cancellationToken)
     {
+        if (await _officeRepository.GetByIdAsync(request.Id, cancellationToken) is null)
+        {
+            throw new OfficeNotFoundException(request.Id);
+        }
+
         var office = new Office
         {
-            Id = Guid.NewGuid(),
+            Id = request.Id,
             City = request.City,
             Street = request.Street,
             HouseNumber = request.HouseNumber,
@@ -26,10 +32,9 @@ public class CreateOfficeCommandHandler : IRequestHandler<CreateOfficeCommand, G
             PhotoUrl = request.PhotoUrl,
             RegistryPhoneNumber = request.RegistryPhoneNumber,
             IsActive = request.IsActive
-
         };
 
-        await _officeRepository.AddAsync(office, cancellationToken);
+        await _officeRepository.UpdateAsync(office, cancellationToken);
 
         return office.Id;
     }

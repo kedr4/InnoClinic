@@ -17,10 +17,10 @@ public static class DataAccessInjection
         return services;
     }
 
-    public static IServiceCollection AddMongo(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddMongo(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptionsWithValidation<MongoDBSettings>();
-        services.AddSingleton<MongoDBClient>();
+        services.AddScoped<MongoDBClient>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
 
         return services;

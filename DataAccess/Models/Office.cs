@@ -11,32 +11,32 @@ public class Office
     public Guid Id { get; set; }
 
     [Required]
-    [BsonElement("City")]
+    [BsonElement("city")]
     public string City { get; set; } = string.Empty;
 
     [Required]
-    [BsonElement("Street")]
+    [BsonElement("street")]
     public string Street { get; set; } = string.Empty;
 
     [Required]
-    [BsonElement("HouseNumber")]
+    [BsonElement("houseNumber")]
     public string HouseNumber { get; set; } = string.Empty;
 
-    [BsonElement("OfficeNumber")]
+    [BsonElement("officeNumber")]
     public string OfficeNumber { get; set; } = string.Empty;
 
     [Required]
-    [BsonElement("Address")]
+    [BsonElement("address")]
     public string Address { get; set; } = string.Empty;
 
-    [BsonElement("PhotoUrl")]
+    [BsonElement("photoUrl")]
     public string? PhotoUrl { get; set; }
 
     [Required]
-    [BsonElement("RegistryPhoneNumber")]
+    [BsonElement("registryPhoneNumber")]
     public string RegistryPhoneNumber { get; set; } = string.Empty;
 
     [Required]
-    [BsonElement("IsActive")]
+    [BsonElement("isActive")]
     public bool IsActive { get; set; } = true;
 }

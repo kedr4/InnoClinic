@@ -14,10 +14,9 @@ public class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior
         _validator = validator;
     }
 
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellation)
     {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        var validationResult = _validator.Validate(request);
 
         if (!validationResult.IsValid)
         {
@@ -26,6 +25,6 @@ public class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior
             throw new ValidationAppException(validationFailures);
         }
 
-        return await next();
+        return next();
     }
 }
