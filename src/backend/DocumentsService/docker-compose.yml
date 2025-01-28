@@ -1,0 +1,33 @@
+services:
+  documents_service:
+    container_name: documents_service
+    image: documents_service 
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8088:8080"
+    depends_on:
+      - documents_sqlserver     
+      - documents_azurite
+    # networks:
+    #     - documents_network
+  documents_sqlserver:
+    container_name: documents_sqlserver
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password1*
+    ports:
+      - "1433:1433" 
+    # networks:
+    #     - documents_network
+  documents_azurite:
+    container_name: documents_azurite
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    ports:
+      - "10000:10000"   
+    # networks:
+    #     - documents_network
+# networks:
+#   documents_network:
+#     driver: bridge
