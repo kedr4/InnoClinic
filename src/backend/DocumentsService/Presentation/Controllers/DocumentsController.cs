@@ -10,9 +10,11 @@ namespace Presentation.Controllers;
 public class DocumentsController : ControllerBase
 {
     public readonly IFilesService _filesService;
-    public DocumentsController(IFilesService filesService)
+    public readonly ICleanupService _cleanupService;
+    public DocumentsController(IFilesService filesService, ICleanupService cleanupService)
     {
         _filesService = filesService;
+        _cleanupService = cleanupService;
     }
 
     [Authorize]
@@ -51,6 +53,14 @@ public class DocumentsController : ControllerBase
     public async Task<IActionResult> DeleteFile(Guid fileId, CancellationToken cancellationToken)
     {
         await _filesService.DeleteFileAsync(fileId, cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpGet("clean-blob")]
+    public async Task<IActionResult> CleanBlob(CancellationToken cancellationToken)
+    {
+        await _cleanupService.CleanupAsync(cancellationToken);
 
         return NoContent();
     }

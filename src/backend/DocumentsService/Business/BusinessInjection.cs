@@ -16,6 +16,7 @@ public static class BusinessInjection
     {
         services
             .AddScoped<IFilesService, FilesService>()
+            .AddScoped<ICleanupService, CleanupService>()
             .AddAuthenticationServices(configuration);
 
         return services;

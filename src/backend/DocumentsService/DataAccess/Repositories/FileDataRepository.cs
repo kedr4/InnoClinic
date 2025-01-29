@@ -20,7 +20,7 @@ public class FileDataRepository : IFileDataRepository
         return filedata.Id;
     }
 
-    public async Task DeleteFileDataAsync(Guid id, CancellationToken cancellationToken)
+    public async Task SoftDeleteFileDataAsync(Guid id, CancellationToken cancellationToken)
     {
         var fileData = await _context.FileDatas.FindAsync(id, cancellationToken);
 
@@ -28,6 +28,16 @@ public class FileDataRepository : IFileDataRepository
         {
             fileData.IsDeleted = true;
             _context.FileDatas.Update(fileData);
+        }
+    }
+
+    public async Task HardDeleteFileDataAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var fileData = await _context.FileDatas.FindAsync(id, cancellationToken);
+
+        if (fileData is not null)
+        {
+            _context.FileDatas.Remove(fileData);
         }
     }
 

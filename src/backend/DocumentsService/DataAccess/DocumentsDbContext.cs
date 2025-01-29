@@ -3,8 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
 
-public class DocumentsDbContext(DbContextOptions<DocumentsDbContext> options) : DbContext(options)
+public class DocumentsDbContext : DbContext
 {
+    public DocumentsDbContext(DbContextOptions<DocumentsDbContext> options) : base(options)
+    { }
+
     public DbSet<FileData> FileDatas { get; set; }
 }
-

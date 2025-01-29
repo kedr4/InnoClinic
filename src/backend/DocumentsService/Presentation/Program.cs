@@ -1,7 +1,10 @@
 using Business;
+using Business.Abstractions.Services;
 using DataAccess;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Presentation.Filters;
 using Presentation.Middleware;
 using Serilog;
 
@@ -51,9 +54,14 @@ public class Program
         builder.Services.AddAuthorization();
 
         builder.Services.AddOpenApi();
-        builder.Services.AddDataAccess(configuration);
 
+        builder.Services.AddDataAccess(configuration);
         builder.Services.AddBusiness(configuration);
+
+        builder.Services.AddHangfire(config =>
+            config.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services.AddHangfireServer();
 
         var app = builder.Build();
         app.UseSerilogRequestLogging();
@@ -63,8 +71,10 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
+        app.UseHangfireDashboard("/dashboard", new DashboardOptions { Authorization = new[] { new AllowAnonymousAuthorizationFilter() } });
         app.UseAuthentication();
         app.UseAuthorization();
+
         app.MapGet("/", () => Results.Redirect("/swagger"));
         app.MapControllers();
 
@@ -77,6 +87,19 @@ public class Program
                 context.Database.Migrate();
             }
         }
+
+        app.Lifetime.ApplicationStarted.Register(() =>
+        {
+            using var scope = app.Services.CreateScope();
+            var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+            recurringJobManager.AddOrUpdate(
+                "cleanup-job",
+                () => scope.ServiceProvider.GetRequiredService<ICleanupService>().CleanupAsync(CancellationToken.None),
+               Cron.Minutely);
+
+        });
+
+
 
         app.Run();
     }

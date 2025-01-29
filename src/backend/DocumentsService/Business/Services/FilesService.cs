@@ -48,7 +48,7 @@ public class FilesService : IFilesService
             throw new UnauthorizedException();
         }
 
-        await _fileDataRepository.DeleteFileDataAsync(fileId, cancellationToken);
+        await _fileDataRepository.SoftDeleteFileDataAsync(fileId, cancellationToken);
         await _fileDataRepository.SaveChangesAsync(cancellationToken);
     }
 
