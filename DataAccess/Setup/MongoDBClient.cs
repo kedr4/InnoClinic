@@ -1,4 +1,5 @@
-﻿using DataAccess.Models;
+﻿using DataAccess.DTOs;
+using DataAccess.Models;
 using DataAccess.Options;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -27,12 +28,19 @@ public class MongoDBClient
         _databaseName = options.Value.DatabaseName;
         _collectionName = options.Value.CollectionName;
     }
-    
+
 
     public IMongoCollection<Office> GetOfficeCollection()
     {
         var db = _client.GetDatabase(_databaseName);
 
         return db.GetCollection<Office>(_collectionName);
+    }
+        
+    public IMongoCollection<Status> GetStatusCollection()
+    {
+        var db = _client.GetDatabase(_databaseName);
+
+        return db.GetCollection<Status>("Statuses");
     }
 }

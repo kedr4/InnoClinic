@@ -2,6 +2,7 @@ using Business;
 using DataAccess;
 using Presentation.Middleware;
 using Serilog;
+using System.Text.Json.Serialization;
 
 namespace Presentation;
 
@@ -19,6 +20,14 @@ public class Program
             options.AddPolicy("ReceptionistOnly", policy => policy.RequireRole("Receptionist"));
         });
 
+        builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); 
+        });
+
+        builder.Services.AddHttpContextAccessor();
+
         builder.Services.AddDataAccess(builder.Configuration);
         builder.Services.AddBusiness(builder.Configuration);
         builder.Services.AddPresentation(builder.Configuration);
@@ -28,10 +37,8 @@ public class Program
         app.UseSerilogRequestLogging();
         app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
-        
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.UseHttpsRedirection();
 

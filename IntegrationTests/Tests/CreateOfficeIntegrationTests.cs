@@ -15,13 +15,14 @@ public class CreateOfficeIntegrationTests : IClassFixture<OfficesServiceAppFacto
     {
         // Arrange
         var createOfficeCommand = new CreateOfficeCommand(
-            City: "New York",
-            Street: "5th Avenue",
-            HouseNumber: "10",
-            OfficeNumber: "101",
-            PhotoUrl: null,
-            RegistryPhoneNumber: "+123456789",
-            IsActive: true
+            userId: Guid.NewGuid(),
+            city: "New York",
+            street: "5th Avenue",
+            houseNumber: "10",
+            officeNumber: "101",
+            photo: null,
+            registryPhoneNumber: "+123456789",
+            isActive: true
         );
 
         // Act

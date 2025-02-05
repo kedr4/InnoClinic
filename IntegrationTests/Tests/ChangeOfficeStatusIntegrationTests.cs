@@ -15,13 +15,14 @@ public class ChangeOfficeStatusIntegrationTests : IClassFixture<OfficesServiceAp
     {
         // Arrange
         var createOfficeCommand = new CreateOfficeCommand(
-            City: "York",
-            Street: "5th Avenue",
-            HouseNumber: "10",
-            OfficeNumber: "101",
-            PhotoUrl: null,
-            RegistryPhoneNumber: "+123456789",
-            IsActive: true
+            userId: Guid.NewGuid(),
+            city: "York",
+            street: "5th Avenue",
+            houseNumber: "10",
+            officeNumber: "101",
+            photo: null,
+            registryPhoneNumber: "+123456789",
+            isActive: true
         );
 
         var response = await _client.PostAsJsonAsync("/api/offices", createOfficeCommand);

@@ -23,13 +23,15 @@ public class GetOfficesIntegrationTests : IClassFixture<OfficesServiceAppFactory
         foreach (var office in testOffices)
         {
             var createOfficeCommand = new CreateOfficeCommand(
-                City: office.City,
-                Street: office.Street,
-                HouseNumber: office.HouseNumber,
-                OfficeNumber: office.OfficeNumber,
-                PhotoUrl: office.PhotoUrl,
-                RegistryPhoneNumber: office.RegistryPhoneNumber,
-                IsActive: office.IsActive
+                userId: Guid.NewGuid(),
+                city: office.City,
+                street: office.Street,
+                houseNumber: office.HouseNumber,
+                officeNumber: office.OfficeNumber,
+                photo: null,
+                //Photo: office.Photo ,
+                registryPhoneNumber: office.RegistryPhoneNumber,
+                isActive: office.IsActive
             );
 
             var getResponse = await _client.PostAsJsonAsync("/api/offices", createOfficeCommand);
@@ -86,7 +88,7 @@ public class GetOfficesIntegrationTests : IClassFixture<OfficesServiceAppFactory
             .RuleFor(o => o.HouseNumber, f => f.Random.Number(1, 100).ToString())
             .RuleFor(o => o.OfficeNumber, f => f.Random.Number(1, 100).ToString())
             .RuleFor(o => o.Address, (f, o) => $"{o.City}, {o.Street} {o.HouseNumber}, office No.{o.OfficeNumber}")
-            .RuleFor(o => o.PhotoUrl, f => null)
+            .RuleFor(o => o.Photo, f => null)
             .RuleFor(o => o.RegistryPhoneNumber, f => "+123456789")
             .RuleFor(o => o.IsActive, f => includeInactive ? f.Random.Bool() : true);
 

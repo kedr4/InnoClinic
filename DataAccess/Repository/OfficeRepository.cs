@@ -23,6 +23,19 @@ public class OfficeRepository : IOfficeRepository
         await _officeCollection.InsertOneAsync(office, null, cancellationToken);
     }
 
+    public async Task DeleteAsync (Guid id, CancellationToken cancellationToken = default)
+    {
+        await _officeCollection.DeleteOneAsync(o => o.Id == id, cancellationToken);
+    }
+
+    public async Task SetOfficePhotoToNull(Guid id, CancellationToken cancellationToken = default)
+    {
+        var office = await _officeCollection.Find(o => o.Id == id).FirstOrDefaultAsync(cancellationToken);
+        office.Photo = null;
+
+        await _officeCollection.ReplaceOneAsync(o => o.Id == id, office, new ReplaceOptions(), cancellationToken);
+    }
+
     public async Task ChangeStatusAsync(Guid id, bool isActive, CancellationToken cancellationToken = default)
     {
         var filter = _filterDefinitionBuilder.Eq(o => o.Id, id);

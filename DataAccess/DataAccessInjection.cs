@@ -2,6 +2,7 @@
 using DataAccess.Helpers;
 using DataAccess.Options;
 using DataAccess.Repository;
+using DataAccess.Repository.Interfaces;
 using DataAccess.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ public static class DataAccessInjection
         services.AddOptionsWithValidation<MongoDBSettings>();
         services.AddScoped<MongoDBClient>();
         services.AddScoped<IOfficeRepository, OfficeRepository>();
+        services.AddScoped<IStatusRepository, StatusRepository>();
 
         return services;
     }

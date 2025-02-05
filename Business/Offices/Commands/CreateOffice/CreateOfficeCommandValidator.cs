@@ -1,9 +1,12 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace Business.Offices.Commands.CreateOffice;
 
 public class CreateOfficeCommandValidator : AbstractValidator<CreateOfficeCommand>
 {
+    private readonly string[] _allowedContentTypes = { "image/jpeg", "image/png" };
+
     public CreateOfficeCommandValidator()
     {
         RuleFor(x => x.City)
@@ -27,5 +30,20 @@ public class CreateOfficeCommandValidator : AbstractValidator<CreateOfficeComman
         RuleFor(x => x.IsActive)
             .NotNull()
             .WithMessage("IsActive cannot be null.");
+
+        RuleFor(x => x.Photo)
+            .NotNull().WithMessage("Photo is required.")
+            .Must(IsValidType).WithMessage("Only JPEG and PNG files are allowed.");
+
+    }
+
+    private bool IsValidType(IFormFile? file)
+    {
+        if (file is null)
+        {
+            return false;
+        }
+
+        return _allowedContentTypes.Contains(file.ContentType);
     }
 }

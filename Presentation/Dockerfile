@@ -12,9 +12,9 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["DataAccess/DataAccess.csproj", "DataAccess/"]
-COPY ["Business/Business.csproj", "Business/"]
 COPY ["Presentation/Presentation.csproj", "Presentation/"]
+COPY ["Business/Business.csproj", "Business/"]
+COPY ["DataAccess/DataAccess.csproj", "DataAccess/"]
 RUN dotnet restore "./Presentation/Presentation.csproj"
 COPY . .
 WORKDIR "/src/Presentation"

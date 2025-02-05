@@ -29,8 +29,8 @@ public class Office
     [BsonElement("address")]
     public string Address { get; set; } = string.Empty;
 
-    [BsonElement("photoUrl")]
-    public string? PhotoUrl { get; set; }
+    [BsonElement("photo")]
+    public string? Photo { get; set; }
 
     [Required]
     [BsonElement("registryPhoneNumber")]

@@ -19,8 +19,8 @@ public record UpdateOfficeCommand(
     [property: JsonPropertyName("officeNumber")]
     string OfficeNumber,
 
-    [property: JsonPropertyName("photoUrl")]
-    string? PhotoUrl,
+    [property: JsonPropertyName("photo")]
+    string? Photo,
 
     [property: JsonPropertyName("registryPhoneNumber")]
     string RegistryPhoneNumber,

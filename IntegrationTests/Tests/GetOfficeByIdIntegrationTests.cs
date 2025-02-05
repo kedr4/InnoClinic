@@ -16,12 +16,13 @@ public class GetOfficeByIdIntegrationTests : IClassFixture<OfficesServiceAppFact
     {
         // Arrange
         var testOffice = new CreateOfficeCommand(
-            City: "New York",
-            Street: "5th Avenue",
-            HouseNumber: "500",
-            OfficeNumber: "101",
-            PhotoUrl: null,
-            RegistryPhoneNumber: "+123456789"
+            userId: Guid.NewGuid(),
+            city: "New York",
+            street: "5th Avenue",
+            houseNumber: "500",
+            officeNumber: "101",
+            photo: null,
+            registryPhoneNumber: "+123456789"
         );
 
         var postOfficeResponse = await _client.PostAsJsonAsync("/api/offices", testOffice);

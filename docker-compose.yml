@@ -1,0 +1,26 @@
+services:
+  offices_service:
+    container_name: offices_service
+    image: offices_service 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8086:8080"
+    depends_on:
+      - offices_mongodb
+
+  offices_mongodb:
+    container_name: offices_mongodb
+    image: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Password1*
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
+    

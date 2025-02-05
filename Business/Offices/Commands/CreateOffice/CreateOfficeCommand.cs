@@ -1,14 +1,46 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 
 namespace Business.Offices.Commands.CreateOffice;
 
-public record CreateOfficeCommand(
-    [property: JsonPropertyName("city")] string City,
-    [property: JsonPropertyName("street")] string Street,
-    [property: JsonPropertyName("houseNumber")] string HouseNumber,
-    [property: JsonPropertyName("officeNumber")] string OfficeNumber,
-    [property: JsonPropertyName("photoUrl")] string? PhotoUrl,
-    [property: JsonPropertyName("registryPhoneNumber")] string RegistryPhoneNumber,
-    [property: JsonPropertyName("isActive")] bool IsActive = true
-) : IRequest<Guid>;
+public class CreateOfficeCommand : IRequest<Guid>
+{
+
+    [JsonPropertyName("userId")]
+    public Guid UserId { get; set; }
+
+    [JsonPropertyName("city")]
+    public string City { get; set; }
+
+    [JsonPropertyName("street")]
+    public string Street { get; set; }
+
+    [JsonPropertyName("houseNumber")]
+    public string HouseNumber { get; set; }
+
+    [JsonPropertyName("officeNumber")]
+    public string OfficeNumber { get; set; }
+
+    [JsonPropertyName("photo")]
+    public IFormFile? Photo { get; set; }
+
+    [JsonPropertyName("registryPhoneNumber")]
+    public string RegistryPhoneNumber { get; set; }
+
+    [JsonPropertyName("isActive")]
+    public bool IsActive { get; set; } = true;
+
+    public CreateOfficeCommand(Guid userId, string city, string street, string houseNumber,
+           string officeNumber, IFormFile? photo, string registryPhoneNumber, bool isActive = true)
+    {
+        UserId = userId;
+        City = city;
+        Street = street;
+        HouseNumber = houseNumber;
+        OfficeNumber = officeNumber;
+        Photo = photo;
+        RegistryPhoneNumber = registryPhoneNumber;
+        IsActive = isActive;
+    }
+}

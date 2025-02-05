@@ -17,13 +17,14 @@ namespace IntegrationTests.Tests
         {
             // Arrange
             var createOfficeCommand = new CreateOfficeCommand(
-                City: "York",
-                Street: "5th Avenue",
-                HouseNumber: "10",
-                OfficeNumber: "101",
-                PhotoUrl: null,
-                RegistryPhoneNumber: "+123456789",
-                IsActive: true
+                userId: Guid.NewGuid(),
+                city: "York",
+                street: "5th Avenue",
+                houseNumber: "10",
+                officeNumber: "101",
+                photo: null,
+                registryPhoneNumber: "+123456789",
+                isActive: true
             );
             var createResponse = await _client.PostAsJsonAsync("/api/offices", createOfficeCommand);
             createResponse.IsSuccessStatusCode.Should().BeTrue();
@@ -35,7 +36,7 @@ namespace IntegrationTests.Tests
                 Street: "5th Avenue Updated",
                 HouseNumber: "20",
                 OfficeNumber: "202",
-                PhotoUrl: null,
+                Photo: null,
                 RegistryPhoneNumber: "+987654321",
                 IsActive: false
             );
@@ -54,7 +55,7 @@ namespace IntegrationTests.Tests
             updatedOffice.Street.Should().Be(updateOfficeCommand.Street);
             updatedOffice.HouseNumber.Should().Be(updateOfficeCommand.HouseNumber);
             updatedOffice.OfficeNumber.Should().Be(updateOfficeCommand.OfficeNumber);
-            updatedOffice.PhotoUrl.Should().Be(updateOfficeCommand.PhotoUrl);
+            updatedOffice.Photo.Should().Be(updateOfficeCommand.Photo);
             updatedOffice.RegistryPhoneNumber.Should().Be(updateOfficeCommand.RegistryPhoneNumber);
             updatedOffice.IsActive.Should().BeFalse();
         }
@@ -69,7 +70,7 @@ namespace IntegrationTests.Tests
                 Street: "Nonexistent Street",
                 HouseNumber: "99",
                 OfficeNumber: "999",
-                PhotoUrl: null,
+                Photo: null,
                 RegistryPhoneNumber: "+000000000",
                 IsActive: true
             );

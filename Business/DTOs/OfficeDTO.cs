@@ -23,8 +23,8 @@ namespace Business.DTOs
         [JsonPropertyName("address")]
         public string Address { get; init; } = string.Empty;
 
-        [JsonPropertyName("photoUrl")]
-        public string? PhotoUrl { get; init; }
+        [JsonPropertyName("photo")]
+        public string? Photo { get; init; }
 
         [JsonPropertyName("registryPhoneNumber")]
         public string RegistryPhoneNumber { get; init; } = string.Empty;
@@ -42,7 +42,7 @@ namespace Business.DTOs
                 HouseNumber = office.HouseNumber,
                 OfficeNumber = office.OfficeNumber,
                 Address = office.Address,
-                PhotoUrl = office.PhotoUrl,
+                Photo = office.Photo,
                 RegistryPhoneNumber = office.RegistryPhoneNumber,
                 IsActive = office.IsActive
             };

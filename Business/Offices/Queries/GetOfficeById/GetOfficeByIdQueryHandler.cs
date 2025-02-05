@@ -31,7 +31,7 @@ public class GetOfficeByIdQueryHandler : IRequestHandler<GetOfficeByIdQuery, Off
             HouseNumber = office.HouseNumber,
             OfficeNumber = office.OfficeNumber,
             Address = office.Address,
-            PhotoUrl = office.PhotoUrl,
+            Photo = office.Photo,
             RegistryPhoneNumber = office.RegistryPhoneNumber,
             IsActive = office.IsActive
         };

@@ -29,7 +29,7 @@ public class UpdateOfficeCommandHandler : IRequestHandler<UpdateOfficeCommand, G
             HouseNumber = request.HouseNumber,
             OfficeNumber = request.OfficeNumber,
             Address = $"{request.City}, {request.Street} {request.HouseNumber}, office No.{request.OfficeNumber}",
-            PhotoUrl = request.PhotoUrl,
+            Photo = request.Photo,
             RegistryPhoneNumber = request.RegistryPhoneNumber,
             IsActive = request.IsActive
         };
