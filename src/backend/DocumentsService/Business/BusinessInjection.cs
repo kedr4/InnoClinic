@@ -1,6 +1,7 @@
 ﻿using Business.Abstractions.Services;
 using Business.Options;
 using Business.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +18,40 @@ public static class BusinessInjection
         services
             .AddScoped<IFilesService, FilesService>()
             .AddScoped<ICleanupService, CleanupService>()
-            .AddAuthenticationServices(configuration);
+            .AddAuthenticationServices(configuration)
+            .AddRabbitAndMassTransit();
 
         return services;
     }
 
+    public static IServiceCollection AddRabbitAndMassTransit(this IServiceCollection services)
+    {
+        services.AddMassTransit(busConfigurator =>
+        {
+            busConfigurator.SetKebabCaseEndpointNameFormatter();
+            busConfigurator.AddConsumer<FileUploadRequestConsumer>();
+
+            busConfigurator.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host("rabbitmq", "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+
+                cfg.ReceiveEndpoint("file-upload-queue", e =>
+                {
+                    e.ConfigureConsumer<FileUploadRequestConsumer>(context);
+                });
+
+                cfg.ConfigureEndpoints(context);
+
+            });
+        });
+
+
+        return services;
+    }
 
     private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -37,8 +67,6 @@ public static class BusinessInjection
         {
             throw new ArgumentException($"{secret} {issuer} {audience} {expiryMinutes} JWT settings are missing or incomplete.");
         }
-
-
 
         services.AddAuthentication(options =>
         {

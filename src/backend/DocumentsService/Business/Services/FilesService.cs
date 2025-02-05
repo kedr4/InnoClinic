@@ -81,7 +81,39 @@ public class FilesService : IFilesService
             throw new InvalidFileTypeException();
         }
 
-        var fileId = Guid.CreateVersion7();
+        var fileId = blobFile.Id;
+
+        await _blobStorageRepository.UploadFileAsync(fileId, blobFile.Content, blobFile.ContentType, cancellationToken);
+
+        var fileData = new FileData
+        {
+            Id = fileId,
+            FileName = blobFile.Uri,
+            CreatedAt = DateTime.UtcNow,
+            UserId = userId
+        };
+
+        await _fileDataRepository.AddFileDataAsync(fileData, cancellationToken);
+        await _fileDataRepository.SaveChangesAsync(cancellationToken);
+
+        return fileId;
+    }
+
+    public async Task<Guid> UploadFileWithUserIdAsync(BlobFile blobFile, Guid userId,  CancellationToken cancellationToken)
+    {
+
+        if (blobFile.Content is null || blobFile.Content.Length == 0)
+        {
+            throw new EmptyFileException();
+        }
+
+        if (!_allowedContentTypes.Contains(blobFile.ContentType))
+        {
+            throw new InvalidFileTypeException();
+        }
+
+        var fileId = blobFile.Id;
+
         await _blobStorageRepository.UploadFileAsync(fileId, blobFile.Content, blobFile.ContentType, cancellationToken);
 
         var fileData = new FileData

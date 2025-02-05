@@ -397,3 +397,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /src/backend/JWT generator
+/src/backend/DocumentsService/.idea/.idea.DocumentsService/.idea
+/src/backend/.idea

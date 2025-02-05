@@ -2,5 +2,5 @@
 
 public interface ICleanupService
 {
-    Task CleanupAsync(CancellationToken cancellationToken = default);
+    public Task CleanupAsync(CancellationToken cancellationToken = default);
 }

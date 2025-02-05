@@ -2,6 +2,7 @@ using Business;
 using Business.Abstractions.Services;
 using DataAccess;
 using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Presentation.Filters;
@@ -59,8 +60,8 @@ public class Program
         builder.Services.AddBusiness(configuration);
 
         builder.Services.AddHangfire(config =>
-            config.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
-
+             config.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
+        
         builder.Services.AddHangfireServer();
 
         var app = builder.Build();
@@ -98,8 +99,6 @@ public class Program
                Cron.Minutely);
 
         });
-
-
 
         app.Run();
     }
