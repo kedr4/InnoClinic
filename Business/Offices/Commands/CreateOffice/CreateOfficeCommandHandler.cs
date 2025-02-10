@@ -1,4 +1,6 @@
-﻿using Business.Repositories.Interfaces;
+﻿using Business.Exceptions;
+using Business.GrpcClients;
+using Business.Repositories.Interfaces;
 using ContractsLib;
 using DataAccess.DTOs;
 using DataAccess.Models;
@@ -12,18 +14,27 @@ public class CreateOfficeCommandHandler : IRequestHandler<CreateOfficeCommand, G
 {
     private readonly IOfficeRepository _officeRepository;
     private readonly IStatusRepository _statusRepository;
+    private readonly AuthGrpcClient _authGrpcClient;
     private readonly IBus _bus;
 
 
-    public CreateOfficeCommandHandler(IOfficeRepository officeRepository, IStatusRepository statusRepository, IBus bus)
+    public CreateOfficeCommandHandler(IOfficeRepository officeRepository, IStatusRepository statusRepository, AuthGrpcClient authGrpcClient, IBus bus)
     {
         _officeRepository = officeRepository;
         _statusRepository = statusRepository;
+        _authGrpcClient = authGrpcClient;
         _bus = bus;
     }
 
     public async Task<Guid> Handle(CreateOfficeCommand request, CancellationToken cancellationToken)
     {
+        var isReceptionist = await _authGrpcClient.IsUserAReceptionist(request.UserId);
+
+        if (!isReceptionist)
+        {
+            throw new NotAReceptionistException(request.UserId);
+        }
+
         var office = new Office
         {
             Id = Guid.CreateVersion7(),

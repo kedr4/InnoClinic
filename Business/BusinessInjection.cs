@@ -1,8 +1,7 @@
 ﻿using Business.Consumers;
+using Business.GrpcClients;
 using Business.PipelineBehaviors;
 using Business.PipelineBehaviours;
-using Business.Services;
-using Business.Services.Interfaces;
 using FluentValidation;
 using MassTransit;
 using MediatR;
@@ -19,11 +18,10 @@ public static class BusinessInjection
         services
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>))
             .AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>))
-            .AddTransient<IFileCallbackService, FileCallbackService>()
+            .AddScoped<AuthGrpcClient>()
             .AddRabbitAndMassTransit()
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
-            .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()))
-            .AddHttpClient<IFileCallbackService, FileCallbackService>();
+            .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
         return services;
     }

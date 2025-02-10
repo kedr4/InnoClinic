@@ -1,4 +1,5 @@
 using Business;
+using ContractsLib;
 using DataAccess;
 using Presentation.Middleware;
 using Serilog;
@@ -27,6 +28,7 @@ public class Program
         });
 
         builder.Services.AddHttpContextAccessor();
+
 
         builder.Services.AddDataAccess(builder.Configuration);
         builder.Services.AddBusiness(builder.Configuration);
